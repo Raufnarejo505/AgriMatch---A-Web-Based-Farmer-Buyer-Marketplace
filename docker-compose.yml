@@ -1,0 +1,46 @@
+services:
+  db:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: agrimatch
+      POSTGRES_PASSWORD: agrimatch
+      POSTGRES_DB: agrimatch
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agrimatch -d agrimatch"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg2://agrimatch:agrimatch@db:5432/agrimatch
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me}
+      JWT_ALGORITHM: HS256
+      JWT_EXPIRE_HOURS: 24
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      ADMIN_NAME: ${ADMIN_NAME:-AgriMatch Admin}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@agrimatch.local}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin12345}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:

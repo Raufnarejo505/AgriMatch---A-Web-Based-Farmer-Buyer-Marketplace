@@ -1,0 +1,35 @@
+# dependencies
+node_modules/
+.venv/
+venv/
+
+# python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# next.js
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# environment
+.env
+.env.*
+!.env.example
+
+# tooling
+.docker/
+*.log
+npm-debug.log*
+
+# documents
+*.pdf
+
+# editors / os
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
