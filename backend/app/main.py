@@ -7,7 +7,7 @@ from sqlalchemy import select
 from .config import settings
 from .database import Base, SessionLocal, engine
 from .models import User
-from .routers import auth, listings, requirements, users
+from .routers import auth, conversations, listings, requirements, users
 from .security import hash_password
 
 
@@ -49,6 +49,7 @@ app.include_router(auth.router, prefix="/api")
 app.include_router(users.router, prefix="/api")
 app.include_router(listings.router, prefix="/api")
 app.include_router(requirements.router, prefix="/api")
+app.include_router(conversations.router, prefix="/api")
 
 
 @app.get("/api/health")
