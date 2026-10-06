@@ -8,7 +8,7 @@ from .config import settings
 from .database import Base, SessionLocal, engine
 from .models import User
 from . import ws
-from .routers import auth, conversations, listings, offers, orders, requirements, users
+from .routers import admin, auth, conversations, listings, offers, orders, requirements, users
 from .security import hash_password
 
 
@@ -53,6 +53,7 @@ app.include_router(requirements.router, prefix="/api")
 app.include_router(conversations.router, prefix="/api")
 app.include_router(offers.router, prefix="/api")
 app.include_router(orders.router, prefix="/api")
+app.include_router(admin.router, prefix="/api")
 app.include_router(ws.router)
 
 
