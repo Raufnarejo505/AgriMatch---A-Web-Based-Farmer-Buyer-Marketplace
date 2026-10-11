@@ -24,7 +24,7 @@ services:
       JWT_EXPIRE_HOURS: 24
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
       ADMIN_NAME: ${ADMIN_NAME:-AgriMatch Admin}
-      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@agrimatch.local}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@agrimatch.com}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin12345}
     ports:
       - "8000:8000"

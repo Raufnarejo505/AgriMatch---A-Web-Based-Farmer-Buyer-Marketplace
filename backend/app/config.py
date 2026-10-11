@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:3000"
 
     admin_name: str = "AgriMatch Admin"
-    admin_email: str = "admin@agrimatch.local"
+    admin_email: str = "admin@agrimatch.com"
     admin_password: str = "admin12345"
 
     @property
