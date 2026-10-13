@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Query, WebSocket, WebSocketDisconnect
+from sqlalchemy import select
 
 from .database import SessionLocal
 from .models import Conversation, Message, User
@@ -60,6 +61,9 @@ async def chat_socket(websocket: WebSocket, conversation_id: int, token: str = Q
                 body = str(payload.get("body") or "").strip()[:2000]
                 if not body:
                     continue
+                if db.scalar(select(User.status).where(User.id == user.id)) != "active":
+                    await websocket.close(code=4403)
+                    return
                 message = Message(conversation_id=conversation_id, sender_id=user.id, body=body)
                 db.add(message)
                 db.commit()
