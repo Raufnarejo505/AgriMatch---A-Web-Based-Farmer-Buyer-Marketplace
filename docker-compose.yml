@@ -1,6 +1,7 @@
 services:
   db:
     image: postgres:16-alpine
+    restart: unless-stopped
     environment:
       POSTGRES_USER: agrimatch
       POSTGRES_PASSWORD: agrimatch
@@ -15,6 +16,7 @@ services:
 
   backend:
     build: ./backend
+    restart: unless-stopped
     environment:
       DATABASE_URL: postgresql+psycopg2://agrimatch:agrimatch@db:5432/agrimatch
       JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me}
@@ -31,6 +33,7 @@ services:
         condition: service_healthy
 
   frontend:
+    restart: unless-stopped
     build:
       context: ./frontend
       args:
