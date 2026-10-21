@@ -1,8 +1,7 @@
 services:
   db:
     image: postgres:16-alpine
-    ports:
-      - "5432:5432"
+    restart: unless-stopped
     environment:
       POSTGRES_USER: agrimatch
       POSTGRES_PASSWORD: agrimatch
@@ -17,6 +16,7 @@ services:
 
   backend:
     build: ./backend
+    restart: unless-stopped
     environment:
       DATABASE_URL: postgresql+psycopg2://agrimatch:agrimatch@db:5432/agrimatch
       JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me}
@@ -24,7 +24,7 @@ services:
       JWT_EXPIRE_HOURS: 24
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
       ADMIN_NAME: ${ADMIN_NAME:-AgriMatch Admin}
-      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@agrimatch.local}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@agrimatch.com}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin12345}
     ports:
       - "8000:8000"
@@ -33,6 +33,7 @@ services:
         condition: service_healthy
 
   frontend:
+    restart: unless-stopped
     build:
       context: ./frontend
       args:
