@@ -6,8 +6,8 @@
 
 [![CI](https://img.shields.io/github/actions/workflow/status/Raufnarejo505/AgriMatch---A-Web-Based-Farmer-Buyer-Marketplace/ci.yml?branch=main&label=CI&style=flat-square)](.github/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/Raufnarejo505/AgriMatch---A-Web-Based-Farmer-Buyer-Marketplace?style=flat-square)](LICENSE)
+[![Contributors](https://img.shields.io/github/contributors/Raufnarejo505/AgriMatch---A-Web-Based-Farmer-Buyer-Marketplace?style=flat-square)](../../graphs/contributors)
 [![Last commit](https://img.shields.io/github/last-commit/Raufnarejo505/AgriMatch---A-Web-Based-Farmer-Buyer-Marketplace?style=flat-square)](https://github.com/Raufnarejo505/AgriMatch---A-Web-Based-Farmer-Buyer-Marketplace/commits/main)
-[![Stars](https://img.shields.io/github/stars/Raufnarejo505/AgriMatch---A-Web-Based-Farmer-Buyer-Marketplace?style=flat-square)](https://github.com/Raufnarejo505/AgriMatch---A-Web-Based-Farmer-Buyer-Marketplace/stargazers)
 
 <br/>
 
@@ -19,25 +19,21 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker_Compose-2496ED?style=flat-square&logo=docker&logoColor=white)
 
-[Overview](#overview) · [Features](#features) · [Architecture](#architecture) · [Quick start](#quick-start) · [API](#api-reference) · [Roadmap](#roadmap)
+[Overview](#overview) · [Features](#features) · [Architecture](#architecture) · [Quick start](#quick-start) · [API](#api-reference) · [Workflow](#development-workflow) · [Roadmap](#roadmap)
 
 </div>
 
 ---
 
+> **Status:** `v1.0.0` released · `v1.1.0` in active development across three workstreams — see the [milestones](../../milestones) and the [backlog](docs/BACKLOG.md).
+
 ## Overview
 
-Smallholder farmers and wholesale buyers usually negotiate through phone calls and
-scattered messages. Listings go stale, price expectations never sync up, and nobody can
-say afterwards what was agreed or when it shipped.
+Smallholder farmers and wholesale buyers usually negotiate through phone calls and scattered messages. Listings go stale, price expectations never sync up, and nobody can say afterwards what was agreed or when it shipped.
 
-AgriMatch puts that entire loop in one product. Farmers publish what they have; buyers
-publish what they need; the two sides search each other's inventory, open a conversation,
-and trade offers over a WebSocket connection. Accepting an offer creates exactly one order,
-which then moves through a tracked lifecycle with a full audit trail.
+AgriMatch puts that entire loop in one product. Farmers publish what they have; buyers publish what they need; the two sides search each other's inventory, open a conversation, and trade offers over a WebSocket connection. Accepting an offer creates exactly one order, which then moves through a tracked lifecycle with a full audit trail.
 
-It was built as a Final Year Project and is deliberately small enough to run end-to-end on
-one machine with `docker compose up`.
+It was built as a Final Year Project and is deliberately small enough to run end-to-end on one machine with `docker compose up`.
 
 ### Who it serves
 
@@ -75,10 +71,8 @@ one machine with `docker compose up`.
 ### Under the hood
 
 - **Role-based access control** enforced per route, with ownership checks on every mutation.
-- **Realtime negotiation** — messages are persisted before broadcast, so a dropped socket
-  never loses history.
-- **Optimistic-lock-free order state machine** — only the owning farmer can advance status,
-  and every transition is appended to `order_status_history`.
+- **Realtime negotiation** — messages are persisted before broadcast, so a dropped socket never loses history.
+- **Optimistic-lock-free order state machine** — only the owning farmer can advance status, and every transition is appended to `order_status_history`.
 - **Paginated search** across listings and requirements (`page`, `size`, default 9, max 100).
 
 ---
@@ -88,19 +82,19 @@ one machine with `docker compose up`.
 ```mermaid
 flowchart LR
     subgraph Browser
-        UI[Next.js 14 App Router<br/>TypeScript + Tailwind]
+        UI["Next.js 14 App Router<br/>TypeScript + Tailwind"]
     end
 
     subgraph Compose["Docker Compose"]
-        FE[frontend :3000]
-        BE[backend :8000<br/>FastAPI + Uvicorn]
-        DB[(PostgreSQL 16<br/>db :5432)]
+        FE["frontend :3000"]
+        BE["backend :8000<br/>FastAPI + Uvicorn"]
+        DB[("PostgreSQL 16<br/>db :5432")]
     end
 
-    UI -->|REST /api/*| BE
-    UI <-->|WebSocket /ws/{id}| BE
-    BE -->|SQLAlchemy 2.0| DB
-    FE -.serves.-> UI
+    UI -- "REST /api/*" --> BE
+    UI <-- "WebSocket /ws" --> BE
+    BE -- "SQLAlchemy 2.0" --> DB
+    FE -. "serves" .-> UI
 ```
 
 ### Negotiation flow
@@ -114,18 +108,18 @@ sequenceDiagram
 
     B->>API: POST /api/conversations
     API->>DB: create conversation (farmer + buyer)
-    F->>API: WS /ws/{id}?token=JWT
-    B->>API: WS /ws/{id}?token=JWT
-    B->>API: {type: "message", body: "..."}
+    F->>API: connect WS /ws with JWT
+    B->>API: connect WS /ws with JWT
+    B->>API: send message body
     API->>DB: persist message
-    API-->>F: broadcast {type: "message"}
+    API-->>F: broadcast message
     F->>API: POST /api/offers
-    API->>DB: offer (pending)
-    API-->>B: broadcast {type: "offer"}
-    B->>API: POST /api/offers/{id}/counter
-    F->>API: POST /api/offers/{id}/accept
-    API->>DB: create order + history[0]
-    API-->>B: broadcast {type: "offer"}
+    API->>DB: offer created as pending
+    API-->>B: broadcast offer
+    B->>API: POST /api/offers/counter
+    F->>API: POST /api/offers/accept
+    API->>DB: create order and history entry
+    API-->>B: broadcast offer
 ```
 
 ### Tech stack
@@ -158,12 +152,10 @@ docker compose ps
 | API docs (Swagger) | <http://localhost:8000/docs> |
 | Health check | <http://localhost:8000/api/health> |
 
-The schema is created on startup with `Base.metadata.create_all`, and an admin account is
-seeded from the environment.
+The schema is created on startup with `Base.metadata.create_all`, and an admin account is seeded from the environment.
 
 > [!WARNING]
-> The development admin is seeded as `admin@agrimatch.com` / `admin12345`. Change
-> `ADMIN_PASSWORD` and `JWT_SECRET` before exposing this anywhere.
+> The development admin is seeded as `admin@agrimatch.com` / `admin12345`. Change `ADMIN_PASSWORD` and `JWT_SECRET` before exposing this anywhere.
 
 ---
 
@@ -216,7 +208,7 @@ All settings are environment variables with working defaults for local developme
 Interactive docs are served at `/docs`. All routes are prefixed with `/api`.
 
 <details>
-<summary><b>Authentication &amp; users</b></summary>
+<summary><b>Authentication and users</b></summary>
 
 | Method | Path | Role |
 | --- | --- | --- |
@@ -229,7 +221,7 @@ Interactive docs are served at `/docs`. All routes are prefixed with `/api`.
 </details>
 
 <details>
-<summary><b>Listings &amp; requirements</b></summary>
+<summary><b>Listings and requirements</b></summary>
 
 | Method | Path | Role |
 | --- | --- | --- |
@@ -246,13 +238,12 @@ Interactive docs are served at `/docs`. All routes are prefixed with `/api`.
 | `PATCH` | `/api/requirements/{id}` | owning buyer |
 | `DELETE` | `/api/requirements/{id}` | owning buyer |
 
-Search parameters on the two collection routes: `crop`, `location`, `quality`,
-`min_quantity`, `max_quantity`, `min_price`, `max_price`, `status`, `page`, `size`.
+Search parameters on the two collection routes: `crop`, `location`, `quality`, `min_quantity`, `max_quantity`, `min_price`, `max_price`, `status`, `page`, `size`.
 
 </details>
 
 <details>
-<summary><b>Conversations, offers &amp; orders</b></summary>
+<summary><b>Conversations, offers and orders</b></summary>
 
 | Method | Path | Role |
 | --- | --- | --- |
@@ -260,7 +251,7 @@ Search parameters on the two collection routes: `crop`, `location`, `quality`,
 | `GET` | `/api/conversations` | participant |
 | `GET` | `/api/conversations/{id}` | participant |
 | `GET` | `/api/conversations/{id}/messages` | participant |
-| `GET` | `/api/offers?conversation_id=` | participant |
+| `GET` | `/api/offers` | participant |
 | `GET` | `/api/offers/mine` | participant |
 | `POST` | `/api/offers` | participant |
 | `POST` | `/api/offers/{id}/accept` | participant |
@@ -297,13 +288,21 @@ ws://localhost:8000/ws/{conversation_id}?token=JWT
 
 Only the farmer and buyer of a conversation can connect.
 
-| Direction | Frame |
+| Direction | Frame types |
 | --- | --- |
-| Client → server | `{"type": "message", "body": "..."}` |
-| Server → client | `{"type": "message" \| "offer", "data": {...}}` |
+| Client to server | `message` |
+| Server to client | `message`, `offer` |
 
-Incoming messages are persisted before being broadcast. Offer events fire on create,
-counter, accept and reject. Suspended accounts are disconnected on their next message.
+```jsonc
+// client -> server
+{ "type": "message", "body": "Is 40kg still available?" }
+
+// server -> client
+{ "type": "message", "data": { "id": 12, "sender_name": "Imran", "body": "..." } }
+{ "type": "offer",   "data": { "id": 4, "status": "pending", "price_per_unit": 85 } }
+```
+
+Incoming messages are persisted before being broadcast. Offer events fire on create, counter, accept and reject. Suspended accounts are disconnected on their next message.
 
 ### Order lifecycle
 
@@ -313,81 +312,126 @@ pending ──► confirmed ──► ready ──► completed
    └────────────┴───────────┴──► cancelled
 ```
 
-Accepting an offer creates exactly one order and records the initial history entry. Only the
-owning farmer can advance the status, and every change is written to `order_status_history`.
+Accepting an offer creates exactly one order and records the initial history entry. Only the owning farmer can advance the status, and every change is written to `order_status_history`.
 
 ---
 
 ## Project structure
 
 ```text
-backend/
-  app/
-    main.py           FastAPI app, CORS, admin seed, health route
-    config.py         environment settings (pydantic-settings)
-    database.py       engine + session factory
-    models.py         SQLAlchemy models (8 tables)
-    schemas.py        Pydantic request/response schemas
-    security.py       password hashing and JWT helpers
-    deps.py           current-user and role dependencies
-    pagination.py     shared offset/limit helper
-    ws.py             WebSocket connection manager
-    routers/          auth, users, listings, requirements,
-                      conversations, offers, orders, admin
-frontend/
-  src/
-    app/              route groups: farmer, buyer, admin, login,
-                      register, conversations, offers, orders, profile
-    components/       Button, Input, Select, Card, Table, Badge,
-                      FilterBar, Pagination, RoleGuard, states
-    lib/              api client, auth storage, ws client, helpers
-docker-compose.yml
+.
+├── .github/
+│   ├── CODEOWNERS                 review routing by directory
+│   ├── ISSUE_TEMPLATE/            task / bug / feature forms
+│   ├── pull_request_template.md
+│   └── workflows/ci.yml
+├── backend/
+│   ├── app/
+│   │   ├── main.py                FastAPI app, CORS, admin seed, health route
+│   │   ├── config.py              environment settings (pydantic-settings)
+│   │   ├── database.py            engine + session factory
+│   │   ├── models.py              SQLAlchemy models (8 tables)
+│   │   ├── schemas.py             Pydantic request/response schemas
+│   │   ├── security.py            password hashing and JWT helpers
+│   │   ├── deps.py                current-user and role dependencies
+│   │   ├── pagination.py          shared offset/limit helper
+│   │   ├── ws.py                  WebSocket connection manager
+│   │   └── routers/               auth · users · listings · requirements
+│   │                              conversations · offers · orders · admin
+│   ├── Dockerfile
+│   └── requirements.txt
+├── frontend/
+│   └── src/
+│       ├── app/                   route groups: farmer · buyer · admin ·
+│       │                          login · register · conversations ·
+│       │                          offers · orders · profile
+│       ├── components/            Button · Input · Select · Card · Table ·
+│       │                          Badge · FilterBar · Pagination ·
+│       │                          RoleGuard · states
+│       ├── lib/                   api client · auth storage · ws client · helpers
+│       └── types.ts
+├── docs/                          playbook · task assignment · backlog · GitHub setup
+├── scripts/                       backlog data + one-shot GitHub bootstrap
+├── CONTRIBUTING.md
+├── docker-compose.yml
+└── README.md
 ```
 
 ---
 
-## Testing & CI
+## Testing and CI
 
-CI runs on every push and pull request to `main` or `develop`:
+CI (`.github/workflows/ci.yml`) runs on every push and pull request to `main` and `develop`:
 
-- **backend** — installs dependencies and runs `python -m compileall -q app` on Python 3.12.
-- **frontend** — `npm ci` then a full `npm run build` on Node 20 with the API URL injected.
+| Job | What it does today |
+| --- | --- |
+| `backend` | installs `requirements.txt`, runs `python -m compileall -q app` on Python 3.12 |
+| `frontend` | `npm ci`, then a full `npm run build` on Node 20 with the API URL injected |
 
-A pytest suite covering the routers and the order state machine is the next addition; see
-the roadmap.
+That is a syntax check, not a test suite. A `pytest` harness covering the routers and the order state machine is the next milestone ([#3](../../issues/3)), wired into a real pipeline with `ruff`, ESLint, typecheck and a Postgres service ([#5](../../issues/5)).
+
+> [!NOTE]
+> GitHub Actions is currently locked at the account level by a billing issue ([#29](../../issues/29)), so workflow runs fail before a runner is allocated. Until that is resolved, run the same commands locally and paste the output into the pull request.
+
+---
+
+## Development workflow
+
+This repository is run the way a small production team runs one: every change starts as an issue, travels on a branch, and lands through a reviewed pull request. Nothing is pushed directly to `main` or `develop` — branch protection enforces it.
+
+| | Rule |
+| --- | --- |
+| **Branches** | `main` holds releases only · `develop` integrates · `feat` / `fix` / `chore` / `docs` branches per issue |
+| **Commits** | [Conventional Commits](https://www.conventionalcommits.org/); the PR title becomes the commit on `develop` |
+| **Pull requests** | one concern, under ~400 changed lines, `Closes #N`, filled template |
+| **Review** | one approval from someone other than the author; first response within 24 hours |
+| **Merge** | squash only, linear history, branch deleted automatically |
+| **Ownership** | `CODEOWNERS` routes review; each area has an owner and a designated reviewer |
+
+| Document | Contents |
+| --- | --- |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | The rules on one page — start here |
+| [docs/TEAM_PLAYBOOK.md](docs/TEAM_PLAYBOOK.md) | Full process: branching, reviews, conflicts, ceremonies |
+| [docs/TASK_ASSIGNMENT.md](docs/TASK_ASSIGNMENT.md) | Ownership map and the three-week delivery plan |
+| [docs/BACKLOG.md](docs/BACKLOG.md) | Prioritised work items and what is out of scope |
+| [docs/GITHUB_SETUP.md](docs/GITHUB_SETUP.md) | Repository settings and branch protection |
 
 ---
 
 ## Roadmap
 
-- [ ] Backend test suite (pytest + `httpx.AsyncClient`) wired into CI.
-- [ ] Alembic migrations instead of `create_all` on startup.
-- [ ] Image uploads for listings (object storage).
-- [ ] Ratings and reviews after a completed order.
-- [ ] Refresh tokens and logout-with-revocation.
-- [ ] Notification emails for new offers and status changes.
+Tracked as issues rather than prose. The full list lives in [docs/BACKLOG.md](docs/BACKLOG.md).
+
+- [ ] Backend test suite and a real CI pipeline — [#3](../../issues/3), [#5](../../issues/5)
+- [ ] Alembic migrations instead of `create_all` on startup — [#4](../../issues/4)
+- [ ] Image uploads for listings — [#11](../../issues/11)
+- [ ] Refresh tokens and logout-with-revocation — [#6](../../issues/6)
+- [ ] In-app notifications for offers and order events — [#18](../../issues/18)
+- [ ] Ratings and reviews after a completed order — [#21](../../issues/21)
 
 ---
 
 ## Notes and limitations
 
-- **Development defaults are insecure by design.** `JWT_SECRET` and the seeded admin
-  password exist so the stack runs with zero configuration. Set both before deploying.
-- **Schema is created at startup**, so there is no migration path yet — a schema change
-  means dropping the volume.
-- **Not hardened for production**: no rate limiting, no HTTPS termination, no refresh-token
-  rotation.
+- **Development defaults are insecure by design.** `JWT_SECRET` and the seeded admin password exist so the stack runs with zero configuration. Set both before deploying.
+- **Schema is created at startup**, so there is no migration path yet — a schema change means dropping the volume.
+- **Not hardened for production**: no rate limiting, no HTTPS termination, no refresh-token rotation.
+- **Tokens live in `localStorage`** and the WebSocket token travels in the query string. Fixing both is a `v1.2` item.
 - Single-tenant and single-region by design; this is a teaching-scale implementation.
 
 ---
 
+## Team
+
+| | Track | Focus |
+| --- | --- | --- |
+| **Abdul Rauf** · [@Raufnarejo505](https://github.com/Raufnarejo505) | Identity, Security and Platform | auth, admin, migrations, test harness, CI |
+| **Masood Ahmed** · [@masoodamd](https://github.com/masoodamd) | Catalog | listings, requirements, search, uploads |
+| **Zahid Hussain** · [@ZahidWebS](https://github.com/ZahidWebS) | Deal Room | conversations, offers, orders, realtime |
+
 ## License
 
 Released under the [MIT License](LICENSE).
-
-## Author
-
-**Abdul Rauf** — [GitHub](https://github.com/Raufnarejo505) · [LinkedIn](https://www.linkedin.com/in/abdul-r-254241168/)
 
 <div align="center">
 <sub>If this project was useful, a ⭐ helps.</sub>
