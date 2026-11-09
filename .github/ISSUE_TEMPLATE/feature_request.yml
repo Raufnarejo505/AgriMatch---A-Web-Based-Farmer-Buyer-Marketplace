@@ -1,0 +1,61 @@
+name: Feature request
+description: Propose new behaviour for AgriMatch — product or technical.
+title: "feat: "
+labels: ["type/feature", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this when the *what* is open for discussion. If the work is already
+        agreed, open a **Task** instead and skip the debate.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: Describe the user and the friction, not the solution.
+      placeholder: |
+        A buyer who wants 500 kg of wheat has to open every listing one by one to
+        find out whether the quantity is even available.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: The shape you have in mind. Rough is fine.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Including "do nothing" — sometimes that is the right answer.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: role
+    attributes:
+      label: Who benefits
+      multiple: true
+      options:
+        - Farmer
+        - Buyer
+        - Admin
+        - Developers (DevEx)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: How much does this matter in the next 3 weeks?
+      options:
+        - "P0 — blocks the release"
+        - "P1 — should ship in v1.1.0"
+        - "P2 — nice to have, park it"
+    validations:
+      required: true

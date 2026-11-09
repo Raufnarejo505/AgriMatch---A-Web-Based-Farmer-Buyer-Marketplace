@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Ask a question
+    url: https://github.com/Raufnarejo505/AgriMatch---A-Web-Based-Farmer-Buyer-Marketplace/discussions
+    about: Use Discussions for "how do I…", design questions, and anything that is not a concrete piece of work.
+  - name: Read the team playbook first
+    url: https://github.com/Raufnarejo505/AgriMatch---A-Web-Based-Farmer-Buyer-Marketplace/blob/develop/docs/TEAM_PLAYBOOK.md
+    about: Branching, review and merge rules — please skim before opening anything.

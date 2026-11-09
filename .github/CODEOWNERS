@@ -1,0 +1,76 @@
+# CODEOWNERS — who must approve which part of the tree.
+#
+# Rules, in order:
+#   * The LAST matching pattern wins.
+#   * The PR author can never satisfy a code-owner review for their own PR,
+#     so a second person must always be available.
+#   * Enforced only when branch protection has "Require review from Code Owners"
+#     switched on. See docs/GITHUB_SETUP.md.
+#
+# Keep this file in sync with the ownership table in docs/TASK_ASSIGNMENT.md.
+
+# ---------------------------------------------------------------------------
+# Default: the maintainer reviews anything nobody else owns yet.
+# ---------------------------------------------------------------------------
+*                                       @Raufnarejo505
+
+# ---------------------------------------------------------------------------
+# Track A — Identity, Security & Platform (Abdul Rauf)
+# ---------------------------------------------------------------------------
+/.github/                               @Raufnarejo505
+/CONTRIBUTING.md                        @Raufnarejo505
+/docker-compose.yml                     @Raufnarejo505
+/backend/Dockerfile                     @Raufnarejo505
+/backend/requirements.txt               @Raufnarejo505
+/backend/app/main.py                    @Raufnarejo505
+/backend/app/config.py                  @Raufnarejo505
+/backend/app/database.py                @Raufnarejo505
+/backend/app/security.py                @Raufnarejo505
+/backend/app/deps.py                    @Raufnarejo505
+/backend/app/routers/auth.py            @Raufnarejo505
+/backend/app/routers/users.py           @Raufnarejo505
+/backend/app/routers/admin.py           @Raufnarejo505
+/backend/tests/conftest.py              @Raufnarejo505
+
+# ---------------------------------------------------------------------------
+# Shared contracts — everyone edits these, the maintainer reviews them.
+# ---------------------------------------------------------------------------
+/backend/app/models.py                  @Raufnarejo505
+/backend/app/schemas.py                 @Raufnarejo505
+/backend/tests/                         @Raufnarejo505
+/frontend/src/types.ts                  @Raufnarejo505
+/frontend/src/components/               @Raufnarejo505
+/frontend/src/lib/api.ts                @Raufnarejo505
+/frontend/src/lib/auth.ts               @Raufnarejo505
+/frontend/src/app/login/                @Raufnarejo505
+/frontend/src/app/register/             @Raufnarejo505
+/frontend/src/app/profile/              @Raufnarejo505
+/frontend/src/app/admin/                @Raufnarejo505
+
+# ---------------------------------------------------------------------------
+# Track B — Catalog (Masood Ahmed)
+# ---------------------------------------------------------------------------
+/backend/app/routers/listings.py        @masoodamd
+/backend/app/routers/requirements.py    @masoodamd
+/backend/app/pagination.py              @masoodamd
+/frontend/src/app/farmer/               @masoodamd
+/frontend/src/app/buyer/                @masoodamd
+/frontend/src/components/FilterBar.tsx  @masoodamd
+/frontend/src/components/ListingForm.tsx @masoodamd
+/frontend/src/components/RequirementForm.tsx @masoodamd
+/frontend/src/components/Pagination.tsx @masoodamd
+/frontend/src/lib/filters.ts            @masoodamd
+
+# ---------------------------------------------------------------------------
+# Track C — Deal Room (Zahid Hussain)
+# ---------------------------------------------------------------------------
+/backend/app/routers/conversations.py   @ZahidWebS
+/backend/app/routers/offers.py          @ZahidWebS
+/backend/app/routers/orders.py          @ZahidWebS
+/backend/app/ws.py                      @ZahidWebS
+/frontend/src/app/conversations/        @ZahidWebS
+/frontend/src/app/offers/               @ZahidWebS
+/frontend/src/app/orders/               @ZahidWebS
+/frontend/src/components/DashboardShell.tsx @ZahidWebS
+/frontend/src/lib/ws.ts                 @ZahidWebS
+/frontend/src/lib/orderStatus.ts        @ZahidWebS

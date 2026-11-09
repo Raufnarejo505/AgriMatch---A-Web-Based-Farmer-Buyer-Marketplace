@@ -1,0 +1,70 @@
+name: Bug report
+description: Something behaves differently from what the docs and tests expect.
+title: "bug: "
+labels: ["type/bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A reproducible bug is worth ten descriptions. Please fill in the steps
+        — if we cannot reproduce it, we cannot fix it.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: The actual behaviour, including the error message or status code.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Log in as farmer@example.com
+        2. Open /farmer/listings and create a listing with quantity 0
+        3. Response is 200; UI renders "0 t"
+        4. Expected: 422 validation error
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      multiple: true
+      options:
+        - backend / API
+        - frontend / UI
+        - database / migration
+        - websocket / realtime
+        - docker / CI
+        - docs
+        - not sure
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Where did you see it? Commit SHA helps enormously.
+      placeholder: "develop @ 9fbbbdf, docker compose, Windows 11 / Chrome 132"
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / screenshots
+      render: shell
+    validations:
+      required: false
