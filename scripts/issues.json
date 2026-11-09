@@ -1,0 +1,233 @@
+{
+  "_comment": "Source of truth for labels, milestones and issues created by scripts/bootstrap-github.ps1. ASCII only on purpose (PowerShell 5.1 encodings).",
+  "labels": [
+    { "name": "type/feature", "color": "1d76db", "description": "New capability for a user" },
+    { "name": "type/bug", "color": "d73a4a", "description": "Wrong behaviour" },
+    { "name": "type/chore", "color": "fef2c0", "description": "Tooling, deps, housekeeping" },
+    { "name": "type/docs", "color": "0075ca", "description": "Documentation only" },
+    { "name": "type/test", "color": "0e8a16", "description": "Tests and test infrastructure" },
+    { "name": "type/security", "color": "b60205", "description": "Security hardening" },
+    { "name": "area/backend", "color": "5319e7", "description": "FastAPI layer" },
+    { "name": "area/frontend", "color": "1d76db", "description": "Next.js layer" },
+    { "name": "area/db", "color": "006b75", "description": "Schema and migrations" },
+    { "name": "area/realtime", "color": "6f42c1", "description": "WebSocket and events" },
+    { "name": "area/devops", "color": "0e8a16", "description": "CI, Docker, repo settings" },
+    { "name": "size/S", "color": "c2e0c6", "description": "About 1-2 hours" },
+    { "name": "size/M", "color": "fbf2c0", "description": "About 3-5 hours" },
+    { "name": "size/L", "color": "f9d0c4", "description": "About 6-10 hours" },
+    { "name": "P0", "color": "b60205", "description": "Must ship in v1.1.0" },
+    { "name": "P1", "color": "d93f0b", "description": "Should ship in v1.1.0" },
+    { "name": "P2", "color": "fbca04", "description": "Stretch, first to be cut" },
+    { "name": "needs-triage", "color": "e4e669", "description": "Not yet sized or assigned" },
+    { "name": "blocked", "color": "000000", "description": "Waiting on something else" },
+    { "name": "good first issue", "color": "7057ff", "description": "A single small, well-bounded change" },
+    { "name": "accessibility", "color": "f143ab", "description": "A11y: keyboard, screen reader, contrast" }
+  ],
+  "milestones": [
+    { "title": "Sprint 1 - Foundations", "due_in_days": 7, "description": "Tests, migrations, CI and the first reviewed PRs." },
+    { "title": "Sprint 2 - Features", "due_in_days": 14, "description": "One visible, demoable feature per track." },
+    { "title": "Sprint 3 - Release v1.1.0", "due_in_days": 21, "description": "Harden, document, tag and release." }
+  ],
+  "issues": [
+    {
+      "id": "A1",
+      "title": "chore: bootstrap team workflow (templates, CODEOWNERS, labels, protection)",
+      "labels": ["type/chore", "area/devops", "size/M", "P0", "good first issue"],
+      "assignees": ["Raufnarejo505"],
+      "milestone": "Sprint 1 - Foundations",
+      "body": "## Context\n\nThe repo has 39 commits, 0 pull requests, 0 issues and no branch protection. The code is in good shape; the collaboration trail is not. This issue turns the process itself into a reviewed change, so every later PR has rules to be measured against.\n\n## What to build\n\n- The files already exist in this branch: `CONTRIBUTING.md`, `.github/CODEOWNERS`, `.github/pull_request_template.md`, `.github/ISSUE_TEMPLATE/*`, `docs/*`.\n- Apply `docs/GITHUB_SETUP.md` steps 1-4: merge strategy, branch protection for `main` and `develop`, Actions permissions, security features.\n- Run `pwsh ./scripts/bootstrap-github.ps1 -DryRun` then without the flag to create labels, milestones and the 25 backlog issues.\n- Create the Project board and enable its automations (step 6).\n\n## Acceptance criteria\n\n- [ ] Direct push to `main` and `develop` is rejected for all three of us, admin included\n- [ ] A PR cannot merge without 1 approval and green CI\n- [ ] CODEOWNERS review is requested automatically when an owned file changes\n- [ ] 25 issues exist, labelled, assigned and milestoned\n- [ ] The seven stale merged branches are deleted\n- [ ] `main` is back-merged into `develop` so the two stop diverging\n\n## Pointers\n\n- `docs/GITHUB_SETUP.md` - click-by-click walkthrough\n- Status-check names only appear in the protection dropdown after CI has run once. Push first, configure second.\n"
+    },
+    {
+      "id": "A2",
+      "title": "test: backend test harness (pytest, DB isolation, auth fixtures)",
+      "labels": ["type/test", "area/backend", "size/M", "P0"],
+      "assignees": ["Raufnarejo505"],
+      "milestone": "Sprint 1 - Foundations",
+      "body": "## Context\n\nThere is no test suite anywhere in the repo. CI runs `python -m compileall`, which proves the files parse, not that they work. Three people are about to edit in parallel, and reading carefully is not a regression strategy.\n\nThis is the critical-path issue: `B1` and `C1` cannot start until it lands.\n\n## What to build\n\n- `backend/tests/` with `conftest.py` and one smoke test per router group.\n- Fixtures: `client` (FastAPI `TestClient`), a `db` session rolled back per test, and `farmer_headers` / `buyer_headers` / `admin_headers` that build a user, hash a password, mint a token and return the auth header.\n- Factory helpers: `make_user`, `make_listing`, `make_requirement`, `make_conversation`, `make_offer`.\n- `backend/pyproject.toml` with `[tool.pytest.ini_options]` (`testpaths = [\"tests\"]`, `addopts = \"-q\"`).\n- `backend/requirements-dev.txt`: `pytest`, `httpx`, `pytest-asyncio`.\n- `cd backend && pytest -q` passes locally with no database running.\n\n## Technical notes\n\n- Default to in-memory SQLite with `StaticPool` so tests need no services; allow `TEST_DATABASE_URL` to override for Postgres in CI.\n- `models.py` puts `postgresql_where` on two partial unique indexes. SQLite silently ignores them, so no test may depend on the conversation uniqueness constraint unless it runs on Postgres. Note this in the conftest docstring.\n- Override `app.dependency_overrides[get_db]`; do not monkeypatch `SessionLocal`, or the WebSocket path (which uses `SessionLocal` directly) will not be covered by the override.\n- `seed_admin()` runs in the lifespan, so tests must not assume a clean `users` table unless they create it themselves.\n\n## Acceptance criteria\n\n- [ ] `pytest -q` is green from a clean checkout with no Postgres running\n- [ ] At least 5 smoke tests: health, register, login, me, and one 401 path\n- [ ] Tests are order-independent - run with `-p no:randomly` and also shuffled\n- [ ] A deliberately broken endpoint makes a test fail (prove the harness asserts, do not assume)\n"
+    },
+    {
+      "id": "A3",
+      "title": "feat(db): Alembic baseline and migration workflow",
+      "labels": ["type/chore", "area/db", "size/M", "P0"],
+      "assignees": ["Raufnarejo505"],
+      "milestone": "Sprint 1 - Foundations",
+      "body": "## Context\n\nThe schema is created by `Base.metadata.create_all` in the lifespan (`backend/app/main.py:34`). There is no migration path: any model change means dropping the volume and losing the data. Two Sprint 2 features (`A5` refresh tokens, `B2` listing images) both add tables or columns.\n\n## What to build\n\n- `alembic init` under `backend/`, with `env.py` reading `settings.database_url` rather than a hardcoded URL, and `target_metadata = Base.metadata`.\n- An initial revision matching the current models exactly (autogenerate it, then read it line by line).\n- Run `alembic upgrade head` in the backend container entrypoint before uvicorn starts.\n- Remove `create_all` from the lifespan. If week 1 needs a safety net, keep it behind a `DEV_CREATE_ALL` flag and delete the flag in week 3.\n- Document in `README.md`: `alembic revision --autogenerate -m \"...\"`, `alembic upgrade head`, `alembic downgrade -1`.\n\n## Acceptance criteria\n\n- [ ] `docker compose down -v && docker compose up --build` produces a schema identical to the old `create_all` one\n- [ ] `alembic revision --autogenerate` produces an empty diff against a migrated database\n- [ ] `alembic downgrade -1` then `upgrade head` round-trips cleanly\n- [ ] README explains the rule: every model change in a PR ships a revision\n\n## How to verify the schema matches\n\nCompare `docker compose exec db psql -U agrimatch -d agrimatch -c '\\d+ users'` before and after the switch, table by table. Paste the two outputs in the PR.\n"
+    },
+    {
+      "id": "A4",
+      "title": "ci: real test pipeline - pytest against Postgres, lint gates, caching",
+      "labels": ["type/chore", "area/devops", "size/M", "P0"],
+      "assignees": ["Raufnarejo505"],
+      "milestone": "Sprint 1 - Foundations",
+      "body": "## Context\n\nCI installs dependencies and runs `compileall` for the backend, and `npm ci && npm run build` for the frontend. It never runs a test and never runs a linter. The badge is green because nothing is being checked.\n\n## What to build\n\n- **Keep the job names `backend` and `frontend` exactly.** Branch protection refers to them by name; renaming silently disables the merge gate.\n- `backend`: `actions/setup-python` with `cache: pip` and `cache-dependency-path: backend/requirements*.txt`, install both requirement files, then `ruff check .`, `ruff format --check .`, `pytest -q`.\n- Postgres service container (`postgres:16-alpine`) with a `pg_isready` health check on 5432, and `TEST_DATABASE_URL` pointing at it.\n- `frontend`: `npm ci`, `npm run lint`, `npm run typecheck`, `npm run build`, with `NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_WS_URL` injected.\n- `concurrency: { group: \"${{ github.workflow }}-${{ github.ref }}\", cancel-in-progress: true }`.\n- Remove the `compileall` step - ruff parses every file already.\n\n## Acceptance criteria\n\n- [ ] A deliberately failing test blocks the merge button\n- [ ] A formatting violation fails CI with the file and line\n- [ ] A second push to the same branch cancels the first run\n- [ ] Warm run is measurably faster than the current one (paste both timings)\n- [ ] `backend` and `frontend` are selectable in Settings -> Branches -> required checks\n\n## Ordering\n\n`A2` provides `pytest`, `B0` provides ruff, `C0` provides lint and typecheck. This issue joins them; land it after those three if you want the first run green.\n"
+    },
+    {
+      "id": "A5",
+      "title": "feat(auth): refresh tokens, rotation, logout and revocation",
+      "labels": ["type/security", "area/backend", "size/L", "P0"],
+      "assignees": ["Raufnarejo505"],
+      "milestone": "Sprint 2 - Features",
+      "body": "## Context\n\n`create_access_token` issues a 24-hour JWT and nothing can revoke it. `get_current_user` re-checks `user.status` on every request, which covers suspension, but a stolen token stays valid for a day and `POST /api/auth/logout` does not exist - the frontend only clears `localStorage`.\n\n## What to build\n\n**Backend**\n- `refresh_tokens` table: `id`, `user_id` (FK cascade), `token_hash` (sha256 - never store the raw token), `expires_at`, `revoked_at`, `created_at`.\n- `POST /api/auth/refresh` - returns a new access token and a rotated refresh token; the presented refresh token is revoked in the same transaction.\n- `POST /api/auth/logout` - revokes the presented refresh token.\n- Access token lifetime drops to 30 minutes (`JWT_EXPIRE_MINUTES`); refresh lifetime 30 days.\n- `routers/admin.py`: suspending or deleting a user revokes all of their refresh tokens immediately.\n\n**Frontend**\n- `lib/api.ts`: on 401, refresh once and retry the original request.\n- Single-flight the refresh: ten parallel 401s must trigger one refresh, not ten, or the rotation invalidates its own siblings.\n- `clearAuth()` also calls `/auth/logout`.\n\n## Acceptance criteria\n\n- [ ] Expired access token -> 401; then refresh -> 200 with a new pair\n- [ ] A refresh token cannot be used twice\n- [ ] Logout makes the refresh token unusable\n- [ ] Suspending a user kills their refresh token immediately\n- [ ] An open tab survives access-token expiry without logging the user out\n- [ ] Ships with an Alembic revision and tests\n\n## Out of scope\n\nMoving the token to an httpOnly cookie. Correct long-term, but it touches every page and every call - it is the first item of v1.2.\n"
+    },
+    {
+      "id": "A6",
+      "title": "feat(auth): rate-limit login and registration",
+      "labels": ["type/security", "area/backend", "size/S", "P1"],
+      "assignees": ["Raufnarejo505"],
+      "milestone": "Sprint 2 - Features",
+      "body": "## Context\n\n`/api/auth/login` and `/api/auth/register` are public, unauthenticated and unlimited. The seeded admin password is `admin12345` and it is printed in the README. Anyone can brute-force a running instance, which is an awkward question to be asked at a demo.\n\n## What to build\n\n- Add `slowapi` (or a small in-memory limiter) as middleware.\n- Limits: 5 login attempts per IP per minute, 3 registrations per IP per hour. Measure first, do not guess.\n- Return `429` with a `Retry-After` header and a JSON body matching the rest of the API's error shape.\n- Only honour `X-Forwarded-For` when a trusted proxy is configured. Trusting it unconditionally lets a client spoof the header and bypass the limit entirely.\n- Log the throttle event with IP and route - never the password or the request body.\n\n## Acceptance criteria\n\n- [ ] The sixth login attempt in a minute returns 429 with `Retry-After`\n- [ ] The counter is per-IP, proven with two distinct clients in a test\n- [ ] A successful login resets (or explicitly does not reset) the bucket, and the behaviour is documented\n- [ ] The 429 path is covered by a test\n\n## Note\n\nP1 - if week 2 overruns, drop this rather than `A5`.\n"
+    },
+    {
+      "id": "A7",
+      "title": "chore(deps): replace python-jose with PyJWT, resolve bcrypt pin",
+      "labels": ["type/security", "area/backend", "size/S", "P2"],
+      "assignees": ["Raufnarejo505"],
+      "milestone": "Sprint 3 - Release v1.1.0",
+      "body": "## Context\n\n`python-jose[cryptography]==3.3.0` is effectively unmaintained and has a history of CVEs around algorithm confusion (`alg=none`, algorithm substitution). `PyJWT` is the maintained default and is a drop-in for everything `security.py` uses.\n\n## What to build\n\n- Swap `python-jose` for `PyJWT==2.9.*` in `requirements.txt`.\n- Rewrite `create_access_token` and `decode_token` in `backend/app/security.py`.\n- Always pass `algorithms=[settings.jwt_algorithm]` explicitly on decode - never accept the algorithm named in the token header.\n- Keep `decode_token` returning `None` for expired/invalid tokens, because `deps.py` and `ws.py` both depend on that contract.\n- Also resolve the `passlib` + `bcrypt==4.0.1` pin: passlib 1.7.4 reads `bcrypt.__about__.__version__`, which bcrypt 4.1 removed. Either document why the pin exists or call `bcrypt` directly.\n\n## Acceptance criteria\n\n- [ ] All existing auth tests pass unchanged\n- [ ] A token signed with a different algorithm is rejected\n- [ ] `pip install -r requirements.txt` resolves with no conflicts\n- [ ] `python-jose` no longer appears anywhere in the tree\n"
+    },
+    {
+      "id": "B0",
+      "title": "chore: Python lint baseline (ruff config, format pass, pre-commit)",
+      "labels": ["type/chore", "area/backend", "size/S", "P0", "good first issue"],
+      "assignees": ["masoodamd"],
+      "milestone": "Sprint 1 - Foundations",
+      "body": "## Context\n\nPython has no formatter or linter configured, so style is whatever each author remembered that day. With three people in the same files, that produces noisy diffs and review threads about whitespace instead of logic.\n\nThis is the **first PR** of the project and deliberately small. Its real job is to exercise the whole workflow - branch, PR, CI, review, squash merge - before anyone writes a feature.\n\n## What to build\n\n- `backend/pyproject.toml` with `[tool.ruff]`: `target-version = \"py312\"`, `line-length = 100`, `src = [\"app\"]`, and `[tool.ruff.lint]` `select = [\"E\", \"F\", \"I\", \"UP\", \"B\"]`.\n- Run `ruff format .` and `ruff check --fix .` once across `backend/`. Commit the reformat as its **own commit** so the diff is skimmable.\n- Add `ruff` to `backend/requirements-dev.txt`.\n- Optional but recommended: `.pre-commit-config.yaml` wiring ruff so this never regresses.\n- Add the two commands to `README.md` under a Code style heading.\n\n## Acceptance criteria\n\n- [ ] `cd backend && ruff check .` exits 0\n- [ ] `cd backend && ruff format --check .` exits 0\n- [ ] The reformat commit changes **no behaviour**\n- [ ] `README.md` documents both commands\n- [ ] CI picks it up once `A4` lands\n\n## Reviewer note\n\nReview in two passes: the config first, then the reformat with whitespace ignored (`?w=1` on the GitHub files tab).\n"
+    },
+    {
+      "id": "B1",
+      "title": "test(catalog): listings and requirements - ownership, filters, pagination",
+      "labels": ["type/test", "area/backend", "size/M", "P0"],
+      "assignees": ["masoodamd"],
+      "milestone": "Sprint 1 - Foundations",
+      "body": "## Context\n\n`listings.py` and `requirements.py` are the most-used surface in the product - every farmer and buyer session touches them - and they carry the ownership rules. Nothing tests them.\n\n## What to build\n\nUsing the harness from `A2`.\n\n**Listings**\n- farmer creates -> 201 and the payload round-trips\n- buyer creates -> 403 (role guard)\n- another farmer PATCHes it -> 403\n- owner PATCHes -> 200, and only the sent fields change (`exclude_unset`)\n- delete -> 204, then GET -> 404\n- filters: `crop` is a case-insensitive partial match; `quality` exact; `min_price`/`max_price` inclusive; `min_quantity`/`max_quantity` inclusive; `status`\n- pagination: `total` is the count **before** slicing; `size` is capped at 100; `page` bounds\n\n**Requirements**\n- buyer creates -> 201; farmer creates -> 403\n- ownership on PATCH and DELETE\n- `delivery_area` filter and price-range filter\n\n## Acceptance criteria\n\n- [ ] Every test fails when the guard it covers is deleted - prove it once locally and say so in the PR\n- [ ] No test depends on execution order\n- [ ] At least one 401 (no token) and one 403 (wrong role) per router\n- [ ] Line coverage of both router files above 85%\n\n## Pointers\n\n- `backend/app/routers/listings.py:14` - `_owned_listing` is the rule worth testing hardest\n- `backend/app/pagination.py` - the `total` before slicing is easy to get wrong\n- The status filter is `Query(None, alias=\"status\")`, so a test passing `status=` exercises the alias, not the parameter name\n"
+    },
+    {
+      "id": "B2",
+      "title": "feat(catalog): listing images - upload, storage, display",
+      "labels": ["type/feature", "area/backend", "area/frontend", "size/L", "P0"],
+      "assignees": ["masoodamd"],
+      "milestone": "Sprint 2 - Features",
+      "body": "## Context\n\nA produce listing with no photograph is not credible to a buyer, and it makes the demo look like a database viewer. `Listing` has no image field and there is no upload path. This is the highest-value product gap on the board.\n\n## What to build\n\n**Backend**\n- `Listing.image_url` (nullable) plus an Alembic revision.\n- `POST /api/listings/{id}/images` - multipart, owning farmer only, with correct 404/403.\n- Validate: content type in `image/jpeg`, `image/png`, `image/webp`; size <= 2 MB; and actually decode the image rather than trusting the header.\n- Store at `backend/media/listings/<uuid>.<ext>` and return `{\"image_url\": \"/media/listings/<file>\"}`.\n- Serve `/media` with `StaticFiles`, and add a `media` volume in `docker-compose.yml` so images survive `up --build`.\n- Deleting a listing deletes the file; a missing file must never turn a delete into a 500.\n\n**Frontend**\n- `ListingForm`: file input with preview and a client-side type/size check.\n- Listing cards and detail view show the image, with a placeholder when it is null.\n\n## Acceptance criteria\n\n- [ ] Farmer uploads a PNG and sees it on `/farmer/listings` and `/buyer/listings`\n- [ ] A 2.1 MB file gets a readable 413/422\n- [ ] A `.txt` renamed to `.png` is rejected\n- [ ] A buyer cannot upload to a farmer's listing (403)\n- [ ] Images survive `docker compose up --build`\n- [ ] Alembic revision included; tests cover upload, rejection and ownership\n\n## Security note\n\nNever trust `Content-Type` or the filename extension. Use `Pillow`'s `verify()` and generate the stored filename yourself - a user-supplied path is a path-traversal hole.\n"
+    },
+    {
+      "id": "B3",
+      "title": "feat(catalog): sorting options and crop suggestions",
+      "labels": ["type/feature", "area/backend", "size/S", "P2"],
+      "assignees": ["masoodamd"],
+      "milestone": "Sprint 3 - Release v1.1.0",
+      "body": "## Context\n\nSearch returns newest-first and nothing else, and buyers have to guess how crops are spelled. Both are cheap and very visible in a demo.\n\n## What to build\n\n- `sort` query parameter on `/api/listings` and `/api/requirements`: `newest` (default), `oldest`, `price_asc`, `price_desc`, `quantity_desc`.\n- Implement as a whitelist dict mapping value -> ORDER BY expression. **Never** interpolate the user's string into SQL.\n- `GET /api/listings/crops` returning distinct case-normalised values for autocomplete; the equivalent for requirements.\n- Consider an index on `(status, crop)` only if `EXPLAIN ANALYZE` shows a sequential scan worth fixing. Measure before adding.\n- Frontend: sort `Select` in `FilterBar`, crop suggestions in the form input.\n\n## Acceptance criteria\n\n- [ ] Each sort option returns a verifiably ordered result - assert the order, not just the status\n- [ ] An unknown `sort` value returns 422, not 500\n- [ ] `crops` returns unique, sorted values\n- [ ] Sorting composes correctly with the existing filters\n\n## Pointers\n\n- `backend/app/routers/listings.py:56` - the single `order_by` this replaces\n- `frontend/src/components/FilterBar.tsx` - the UI to extend\n"
+    },
+    {
+      "id": "B4",
+      "title": "fix(catalog): consistent pagination contract (pages field, paginate /mine)",
+      "labels": ["type/bug", "area/backend", "size/S", "P1"],
+      "assignees": ["masoodamd"],
+      "milestone": "Sprint 2 - Features",
+      "body": "## Context\n\nTwo inconsistencies in one contract:\n\n1. `Page` in `backend/app/schemas.py:50` exposes `items`, `total`, `page`, `size` but no `pages`, so every consumer recomputes `Math.ceil(total / size)` itself - the frontend does it in more than one place.\n2. `GET /api/listings/mine` and `GET /api/requirements/mine` return an unbounded `list[...]` with no pagination at all. Fine at five rows, broken at five hundred.\n\n## What to build\n\n- Add a computed `pages` field to `Page[T]`.\n- Paginate both `/mine` endpoints with the same `page` / `size` parameters and return `Page[T]`.\n- Update `frontend/src/components/Pagination.tsx` to use `pages`, and `frontend/src/types.ts` for the new field.\n- Keep the existing parameter names and defaults (`page`, `size=9`, max 100). Compatibility beats a nicer name.\n\n## Acceptance criteria\n\n- [ ] `pages` is correct for exact multiples (`total=18, size=9 -> 2`)\n- [ ] `pages` is 0 when `total` is 0, not 1\n- [ ] `/mine` paginates and sorts deterministically\n- [ ] `Pagination` works against a result set larger than one page\n\n## Breaking change\n\nTurning `/mine` into an envelope breaks its callers. The only ones are `frontend/src/app/farmer/listings/page.tsx` and `frontend/src/app/buyer/requirements/page.tsx` - update them in the same PR and say so in the description.\n"
+    },
+    {
+      "id": "B5",
+      "title": "feat(ui): loading skeletons, empty states and inline validation",
+      "labels": ["type/feature", "area/frontend", "size/S", "P2"],
+      "assignees": ["masoodamd"],
+      "milestone": "Sprint 3 - Release v1.1.0",
+      "body": "## Context\n\nEvery list page renders an empty table for a second before data arrives, shows nothing at all when the result set is empty, and surfaces validation failures as a generic error. `frontend/src/components/States.tsx` already exists for exactly this and is barely used.\n\n## What to build\n\n- Loading skeletons for the farmer and buyer list pages, conversations and offers.\n- Empty states that distinguish \"nothing yet\" from \"nothing matched these filters\", each with a clear action (\"Clear filters\" / \"Create your first listing\").\n- Field-level validation on `ListingForm` and `RequirementForm`: quantity > 0, `max_price >= min_price`, crop non-empty. Map server-side 422 details back onto the offending field.\n- One shared success/failure banner or toast instead of silent success.\n\n## Acceptance criteria\n\n- [ ] Throttle the network and confirm a skeleton appears rather than an empty table\n- [ ] Search a nonsense crop and get an empty state whose \"Clear filters\" works\n- [ ] `max_price` below `min_price` is caught client-side with the message on the right field\n- [ ] No new component duplicates `States.tsx` - extend it\n"
+    },
+    {
+      "id": "C0",
+      "title": "chore: frontend lint baseline (ESLint, Prettier, lint and typecheck scripts)",
+      "labels": ["type/chore", "area/frontend", "size/S", "P0", "good first issue"],
+      "assignees": ["ZahidWebS"],
+      "milestone": "Sprint 1 - Foundations",
+      "body": "## Context\n\n`frontend/package.json` has `dev`, `build` and `start` - and nothing else. No ESLint, no Prettier, no typecheck script. The CI gate is `npm run build`, which is weaker than it looks once `any` starts spreading.\n\nThis is the **first PR** in the Deal Room track and deliberately small - it exercises the whole workflow end to end.\n\n## What to build\n\n- ESLint: `eslint`, `eslint-config-next`, and `.eslintrc.json` extending `next/core-web-vitals` and `next/typescript`.\n- Prettier: `.prettierrc` matching the existing code (double quotes, semicolons, 2-space indent, print width 100) and `.prettierignore` for `.next/` and `package-lock.json`.\n- Scripts: `lint`, `lint:fix`, `format`, `format:check`, `typecheck` (`tsc --noEmit`).\n- One formatting pass, committed separately, so the diff is greppable.\n- Document the commands in `README.md`.\n\n## Acceptance criteria\n\n- [ ] `npm run lint` exits 0\n- [ ] `npm run typecheck` exits 0\n- [ ] `npm run format:check` exits 0\n- [ ] The formatting commit changes no behaviour\n- [ ] `npm run build` still passes\n\n## Careful\n\nPrettier will reflow every file. Keep the reformat in its own commit and warn the reviewer before they open the PR, or they will think it is 2000 lines of real work.\n"
+    },
+    {
+      "id": "C1",
+      "title": "test(dealroom): offer counter flow and order state machine",
+      "labels": ["type/test", "area/backend", "size/M", "P0"],
+      "assignees": ["ZahidWebS"],
+      "milestone": "Sprint 1 - Foundations",
+      "body": "## Context\n\n`offers.py` implements a negotiation state machine (pending -> accepted / rejected / countered) and creates an `Order` on acceptance. `orders.py` implements a four-state lifecycle. This is the riskiest logic in the system - money, two concurrent actors, irreversible transitions - and it has no tests.\n\n## What to build\n\nUsing the harness from `A2`.\n\n**Offer flow**\n- create -> 201 with `status == \"pending\"`\n- counterparty accepts -> offer `accepted`, exactly one `Order` with matching crop/quantity/price and `history[0].status == \"pending\"`\n- accept your own offer -> 400\n- accept an already-accepted offer -> 400\n- reject -> `rejected`; counter -> parent `countered`, child `pending` with `parent_offer_id` set\n- a non-participant gets 403 on every one of the above\n\n**Order lifecycle**\n- `pending -> confirmed -> ready -> completed`, each appending an `OrderStatusHistory` row\n- an illegal transition (`pending -> completed`) is rejected\n- only the owning farmer advances status; the buyer gets 403\n- cancellation from each reachable state\n- exactly one order per offer - the unique constraint on `orders.offer_id` is real, assert it\n\n## Acceptance criteria\n\n- [ ] Every legal and illegal transition in the README diagram has a test\n- [ ] \"Exactly one order per accepted offer\" has a dedicated test\n- [ ] Tests fail when the guard they cover is deleted\n- [ ] Nothing depends on history ordering except by `id`\n\n## Pointers\n\n- `backend/app/routers/offers.py:112` - `accept_offer`\n- `backend/app/routers/orders.py` - transitions\n- `frontend/src/lib/orderStatus.ts` - the UI's copy of these rules; if the two ever disagree, that is a bug\n"
+    },
+    {
+      "id": "C2",
+      "title": "fix(offers): guard the accept/reject/counter race with a row lock",
+      "labels": ["type/bug", "area/backend", "size/M", "P0"],
+      "assignees": ["ZahidWebS"],
+      "milestone": "Sprint 2 - Features",
+      "body": "## Context\n\n`accept_offer` checks `if offer.status != \"pending\"` and then writes. Under two concurrent requests - two tabs, or a double click - both can read `pending` before either commits. Both then insert an `Order` for the same `offer_id`. `orders.offer_id` is `unique=True`, so the second insert raises `IntegrityError` and the client sees a **500 instead of a clean 409**.\n\nThe data stays correct. The behaviour does not, and a 500 on a duplicate click is exactly the kind of thing a demo run will surface.\n\n## What to build\n\n- Lock the offer row for the duration of the transition: `select(Offer).where(Offer.id == offer_id).with_for_update()` at the top of accept, reject and counter.\n- Re-read the status **inside** the lock; do not trust the object loaded before it.\n- Catch `IntegrityError` on the order insert and translate it to `409 Conflict` with a readable message.\n- Frontend: handle 409 by refetching the offer list and showing a message, not a generic error.\n\n## Acceptance criteria\n\n- [ ] Two concurrent accepts produce one 200 and one 409 - never two 200s, never a 500\n- [ ] Same guarantee for concurrent counter and concurrent reject\n- [ ] A deterministic test reproduces the race and **fails on current `develop`**\n- [ ] No `FOR UPDATE` is held outside a transaction that commits\n\n## How to prove it\n\nWrite the test first and paste the red run in the PR description. A race-condition fix without a failing-first test is a guess.\n\n## Pointers\n\n- `backend/app/routers/offers.py:112-143`\n- `backend/app/models.py:116` - the constraint currently doing the work silently\n"
+    },
+    {
+      "id": "C3",
+      "title": "feat(dealroom): in-app notifications for offers and order events",
+      "labels": ["type/feature", "area/realtime", "area/frontend", "size/L", "P0"],
+      "assignees": ["ZahidWebS"],
+      "milestone": "Sprint 2 - Features",
+      "body": "## Context\n\nAn offer or a status change is visible only if the recipient happens to have that conversation open. Close the tab and it is invisible until they go looking. That is the difference between a demo and a product.\n\n## What to build\n\n**Backend**\n- `notifications` table: `id`, `user_id`, `type`, `title`, `body`, `link`, `read_at`, `created_at`, plus an Alembic revision.\n- `GET /api/notifications` (paginated, newest first), `PATCH /api/notifications/{id}/read`, `POST /api/notifications/read-all`, `GET /api/notifications/unread-count`.\n- Emit on: offer received, offer countered, offer accepted or rejected, order status changed.\n- Push as `{\"type\": \"notification\", \"data\": {...}}` over the existing socket. `ConnectionManager` in `ws.py` is keyed by conversation id, so you need either a second index keyed by user id or a user room joined alongside the conversation room. Pick one and write down why in the PR.\n\n**Frontend**\n- Bell in `DashboardShell` with an unread badge.\n- Dropdown or `/notifications` page; click marks read and navigates to `link`.\n\n## Acceptance criteria\n\n- [ ] Buyer sends an offer -> the farmer's bell increments with no page reload\n- [ ] Marking read decrements the badge and survives a refresh\n- [ ] A user cannot read or mark another user's notification (403/404)\n- [ ] Unread count is 0, not null, for a fresh user\n- [ ] Tests cover creation, authorisation and the count endpoint\n\n## Scope discipline\n\nIn-app only. No email, no push - see the out-of-scope table in `docs/BACKLOG.md`.\n"
+    },
+    {
+      "id": "C4",
+      "title": "feat(realtime): WebSocket reconnect with backoff and message resync",
+      "labels": ["type/feature", "area/realtime", "size/M", "P1"],
+      "assignees": ["ZahidWebS"],
+      "milestone": "Sprint 3 - Release v1.1.0",
+      "body": "## Context\n\n`frontend/src/lib/ws.ts` opens a socket and that is the end of the story. If it drops - laptop sleeps, the API restarts, the network changes - the UI silently stops updating forever and the user has no idea. This is the most likely live-demo failure we have.\n\n## What to build\n\n- Reconnect with exponential backoff and jitter, capped at 30 s, so a dead API does not get hammered.\n- On reconnect, fetch messages missed while offline. This needs API support: an `after_id` parameter on `GET /api/conversations/{id}/messages`.\n- A connection status indicator (\"Reconnecting...\" / \"Live\") near the composer.\n- While disconnected, disable send or queue outgoing messages and flush on reconnect - pick one and state it.\n- Clean up on unmount and guard against React StrictMode mounting twice, which currently would open two sockets.\n\n## Acceptance criteria\n\n- [ ] Kill the backend mid-conversation, restart it: messages resume within a few seconds and the indicator recovers\n- [ ] No duplicated messages after a reconnect\n- [ ] StrictMode double-mount leaves exactly one active socket\n- [ ] Backoff caps and does not spin (log the delays once and paste them)\n\n## Pointers\n\n- `frontend/src/lib/ws.ts`, `frontend/src/app/conversations/[id]/page.tsx`\n- `backend/app/routers/conversations.py` - the messages endpoint to extend\n"
+    },
+    {
+      "id": "C5",
+      "title": "feat(orders): richer status timeline (actor, reason, timestamps)",
+      "labels": ["type/feature", "area/frontend", "size/S", "P2"],
+      "assignees": ["ZahidWebS"],
+      "milestone": "Sprint 3 - Release v1.1.0",
+      "body": "## Context\n\nThe audit trail exists in `order_status_history` but the UI shows a bare list of statuses. Who changed it, when, and why are all missing - which is the entire reason the table exists.\n\n## What to build\n\n- Add `changed_by_id` and `note` (nullable) to `order_status_history` with an Alembic revision.\n- Record the acting user on every transition, and require a `note` when cancelling.\n- Render a real vertical timeline on `frontend/src/app/orders/[id]/page.tsx`: status, actor name, relative timestamp (\"2 hours ago\"), and the reason for cancellations.\n- Keep the existing history endpoint shape backward compatible by adding fields, not renaming them.\n\n## Acceptance criteria\n\n- [ ] Every transition records the acting user\n- [ ] Cancelling without a reason is rejected by the API (422)\n- [ ] The timeline renders correctly for an order with 0, 1 and 5 transitions\n- [ ] Relative timestamps are also absolute on hover\n\n## Pointers\n\n- `backend/app/models.py:132` - `OrderStatusHistory`\n- `backend/app/routers/orders.py` - where transitions are written\n"
+    },
+    {
+      "id": "C6",
+      "title": "feat(trust): ratings and reviews after a completed order",
+      "labels": ["type/feature", "area/backend", "area/frontend", "size/M", "P2"],
+      "assignees": ["ZahidWebS"],
+      "milestone": "Sprint 3 - Release v1.1.0",
+      "body": "## Context\n\nA marketplace with no reputation mechanism asks strangers to trust each other on faith. Every other listing feature is secondary to this if the product is described as \"for farmers selling to buyers\".\n\n## What to build\n\n- `reviews` table: `id`, `order_id`, `author_id`, `subject_id`, `rating` (1-5), `comment`, `created_at`, with a unique constraint on `(order_id, author_id)`.\n- `POST /api/reviews` - allowed only when the order is `completed`, only for the two participants, one review per order per side, and you cannot rate yourself.\n- `GET /api/reviews?user_id=` and an aggregate `{ average, count }`.\n- Expose `average_rating` and `review_count` on the user/profile response.\n- UI: star form on a completed order, aggregate on the profile, and on listing cards for the farmer.\n\n## Acceptance criteria\n\n- [ ] Reviewing an order that is not `completed` -> 400\n- [ ] A third party cannot review someone else's order (403)\n- [ ] A second review by the same author on the same order -> 409\n- [ ] Aggregate updates immediately and is correct for 0 reviews (null average, count 0 - decide and document which)\n- [ ] Ships with an Alembic revision and tests\n\n## If time runs short\n\nShip the API plus the completed-order form, and defer the aggregate on listing cards. A working half is better than a broken whole.\n"
+    },
+    {
+      "id": "X1",
+      "title": "release: v1.1.0 (release PR, tag, notes)",
+      "labels": ["type/chore", "area/devops", "size/S", "P1"],
+      "assignees": ["Raufnarejo505"],
+      "milestone": "Sprint 3 - Release v1.1.0",
+      "body": "## Context\n\nThe repository is at v1.0.0 and `main` and `develop` have already diverged once. This issue is the release procedure itself, so the last day is a checklist rather than a scramble.\n\n## Checklist\n\n- [ ] Feature freeze at 12:00 Wednesday; after that, bug fixes and docs only\n- [ ] Every `Sprint 3` milestone issue closed, or explicitly moved to `v1.2` with a comment\n- [ ] CI green on `develop`\n- [ ] `README.md` matches the shipped API and env vars\n- [ ] `docker compose up --build` works from a clean clone on a machine that is not yours\n- [ ] Demo accounts seeded and the walkthrough rehearsed end to end\n- [ ] Release PR `develop -> main`, squash-merged\n- [ ] Tag `v1.1.0` on the merge commit, release notes generated from the milestone\n- [ ] `main` back-merged into `develop` so they never diverge again\n- [ ] Stale branches deleted, `git fetch --prune` run\n\n## Release notes draft\n\nGroup by track: Identity & Security, Catalog, Deal Room, Platform. Mention the breaking change to `/listings/mine` and `/requirements/mine` (now paginated envelopes) if `B4` landed.\n\n## Evidence for the final report\n\nScreenshot at release time: the closed milestone, the contributor graph, the CI history, the release page, and the project board in `Done`. That set is the proof that the process ran.\n"
+    },
+    {
+      "id": "X2",
+      "title": "chore: demo seed script with realistic accounts and conversations",
+      "labels": ["type/chore", "area/backend", "size/S", "P1"],
+      "assignees": ["masoodamd"],
+      "milestone": "Sprint 3 - Release v1.1.0",
+      "body": "## Context\n\nEvery demo currently begins by registering five accounts by hand and typing three listings, which is five minutes of dead air in front of an examiner and a guaranteed typo.\n\n## What to build\n\n- `backend/scripts/seed_demo.py`, runnable as `docker compose exec backend python -m scripts.seed_demo`.\n- Contents: 3 farmers and 3 buyers with plausible names and locations, 12 listings across 5 crops with varied quality and price, 6 buyer requirements, 2 conversations with 10+ messages, offers in `pending`, `countered` and `accepted` states, and 3 orders spread across `pending`, `ready` and `completed`.\n- One seeded order in `completed` so `C6` has something to review.\n- Idempotent by default (skip if the demo users exist) and `--reset` to wipe and rebuild.\n- Print the credentials it created, and add them to the README's demo section.\n\n## Acceptance criteria\n\n- [ ] Running twice does not duplicate data\n- [ ] `--reset` produces a clean, demo-ready state\n- [ ] Every seeded account can log in and sees a non-empty dashboard\n- [ ] Passwords are hashed through the same `hash_password` used by registration, not written raw\n- [ ] Documented in `README.md`\n\n## Pointers\n\n- `backend/app/main.py:15` - `seed_admin()` shows the existing pattern\n- `backend/app/security.py` - `hash_password`\n"
+    },
+    {
+      "id": "X3",
+      "title": "docs: refresh README, API tables and architecture for v1.1.0",
+      "labels": ["type/docs", "size/S", "P1"],
+      "assignees": ["Raufnarejo505"],
+      "milestone": "Sprint 3 - Release v1.1.0",
+      "body": "## Context\n\nThe README is genuinely good - badges, mermaid diagrams, a full API table - which means it will be *obviously* wrong the moment new endpoints land. Good docs that drift are worse than honest ones, because examiners read them.\n\n## What to build\n\n- API reference: add `/auth/refresh`, `/auth/logout`, `/notifications/*`, listings images, and any sort/`pages` parameters actually shipped.\n- Configuration table: any new env var (`JWT_EXPIRE_MINUTES`, media paths, rate-limit settings).\n- Architecture diagram: reflect Alembic, the notifications table and the media volume.\n- Roadmap: tick off what shipped, move the rest forward.\n- New section: **Team** with the three contributors, their tracks and links.\n- New section: **Workflow**, linking `CONTRIBUTING.md` and the playbook - this is the part a final-year marker reads to see process.\n- Testing section: how to run the suite, what CI actually checks now.\n\n## Acceptance criteria\n\n- [ ] No documented endpoint is absent from the API, and no endpoint is absent from the docs\n- [ ] A new contributor can go from clone to a running stack using only the README\n- [ ] Mermaid diagrams render (check the rendered view, not the source)\n- [ ] Links to `docs/*` resolve on `main` after release\n\n## How to check cheaply\n\nList the routes from `http://localhost:8000/openapi.json` and diff that list against the README table. Anything present in one and not the other is a bug in this issue.\n"
+    },
+    {
+      "id": "X4",
+      "title": "feat(a11y): accessibility pass - labels, focus, contrast, keyboards",
+      "labels": ["type/feature", "area/frontend", "size/S", "P2", "accessibility"],
+      "assignees": ["ZahidWebS"],
+      "milestone": "Sprint 3 - Release v1.1.0",
+      "body": "## Context\n\nAn agricultural marketplace is used by people who are not power users, often on a phone, sometimes with poor eyesight. The current UI is clean but has the usual gaps: unlabelled inputs, no visible focus ring in places, tables that are not navigable, and colour-only status badges.\n\n## What to build\n\n- Every `Input` and `Select` gets a real `<label htmlFor>`; no placeholder-as-label.\n- Visible `:focus-visible` ring on every interactive element, and a logical tab order through forms.\n- Status badges get text or an icon, not colour alone.\n- `aria-live=\"polite\"` on the notification badge and the toast region.\n- Images (after `B2`) get meaningful `alt` text; decorative ones get `alt=\"\"`.\n- A skip-to-content link and a consistent `<main>` landmark.\n- Check contrast at 4.5:1 for body text with a browser devtool.\n\n## Acceptance criteria\n\n- [ ] Keyboard-only: complete registration, create a listing and send an offer without touching a mouse\n- [ ] Axe DevTools scan on the five main pages reports no serious or critical issues\n- [ ] Every form field in `ListingForm` and `RequirementForm` is announced with its label\n- [ ] Focus is visible on every focusable element in Chrome and Firefox\n\n## Pointers\n\n- `frontend/src/components/Input.tsx`, `Select.tsx`, `Badge.tsx`\n- `frontend/src/app/globals.css` - focus styles\n"
+    },
+    {
+      "id": "X5",
+      "title": "fix(docker): backend healthcheck, ordered startup, pass the WS URL to the build",
+      "labels": ["type/bug", "area/devops", "size/S", "P1"],
+      "assignees": ["masoodamd"],
+      "milestone": "Sprint 3 - Release v1.1.0",
+      "body": "## Context\n\nThree small but real problems in `docker-compose.yml`:\n\n1. `frontend` has `depends_on: [backend]` without `condition: service_healthy`, so it starts while the API is still booting.\n2. `backend` has no healthcheck at all, so nothing can wait on it and `docker compose ps` cannot tell you it is actually serving.\n3. The `frontend` build only receives `NEXT_PUBLIC_API_URL` as a build arg - `NEXT_PUBLIC_WS_URL` if defined in the shell is silently dropped, so a non-default host produces a broken socket in the built image.\n\n## What to build\n\n- `backend` healthcheck hitting `/api/health` with `python -c \"import urllib.request; ...\"` (no curl in the slim image) - interval 5 s, retries 10, `start_period` long enough for migrations.\n- `frontend`: `depends_on: { backend: { condition: service_healthy } }`.\n- Pass `NEXT_PUBLIC_WS_URL` as a build arg and `ARG` it in `frontend/Dockerfile`.\n- Confirm `.env.example` lists all three variables with working defaults.\n\n## Acceptance criteria\n\n- [ ] `docker compose up --build` from a cold cache brings up all three services healthy, with no startup errors in the frontend log\n- [ ] `docker compose ps` shows `healthy` for `db` and `backend`\n- [ ] A stale `.next` build with a custom `NEXT_PUBLIC_WS_URL` connects correctly\n- [ ] `.env.example` complete and matches the README table\n\n## Pointers\n\n- `docker-compose.yml:35-44`\n- `frontend/Dockerfile`\n"
+    }
+  ]
+}

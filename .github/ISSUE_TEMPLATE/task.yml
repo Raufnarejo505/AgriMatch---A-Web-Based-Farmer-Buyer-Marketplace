@@ -1,0 +1,71 @@
+name: Task
+description: A unit of planned work — feature, refactor, test, chore, docs.
+title: "[area] "
+labels: ["needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for anything we intend to *do*. Keep the title imperative
+        ("Add refresh tokens and logout", not "Refresh tokens").
+
+        Pick **one** area label and **one** size label before you start.
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Why does this exist? What breaks or is missing today?
+      placeholder: |
+        Every access token lives for 24 hours and there is no way to revoke it.
+        A suspended user keeps a working token, and a stolen token is valid for a day.
+    validations:
+      required: true
+
+  - type: textarea
+    id: outcome
+    attributes:
+      label: What to build
+      description: The change in concrete terms. Reference the files or routes you expect to touch.
+      placeholder: |
+        - `refresh_tokens` table (token hash, user_id, expires_at, revoked_at)
+        - `POST /api/auth/refresh` and `POST /api/auth/logout`
+        - access token lifetime drops to 30 minutes
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Written as checkboxes. These become your test cases and the reviewer's checklist.
+      value: |
+        - [ ] 
+        - [ ] 
+        - [ ] Tests cover the happy path and the main failure path
+        - [ ] Documented in `README.md` if a route or env var changed
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes / pointers
+      description: Anything that saves the next person time — tricky lines, related issues, APIs to read.
+      placeholder: |
+        - `backend/app/security.py` has `create_access_token`
+        - Related: #12
+        - Open question: should logout revoke every device or just one?
+    validations:
+      required: false
+
+  - type: textarea
+    id: dod
+    attributes:
+      label: Definition of Done
+      value: |
+        - [ ] Branch named `<type>/<issue>-<slug>`, PR into `develop`
+        - [ ] CI green, one approval from someone other than the author
+        - [ ] Squash-merged, branch deleted, issue closed automatically
+    validations:
+      required: true

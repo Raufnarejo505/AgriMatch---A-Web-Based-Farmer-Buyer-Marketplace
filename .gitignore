@@ -33,3 +33,6 @@ npm-debug.log*
 Thumbs.db
 .idea/
 .vscode/
+
+# generated artefacts
+scripts/issue-map.json
