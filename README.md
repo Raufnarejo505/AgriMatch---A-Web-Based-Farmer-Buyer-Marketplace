@@ -192,6 +192,16 @@ NEXT_PUBLIC_WS_URL=ws://localhost:8000 \
   npm run dev
 ```
 
+Frontend lint, format, and typecheck commands:
+
+```bash
+npm run lint          # Run ESLint
+npm run lint:fix      # Auto-fix ESLint issues
+npm run format        # Format code with Prettier
+npm run format:check  # Check formatting without writing
+npm run typecheck     # Run TypeScript type checker
+```
+
 ### Configuration
 
 All settings are environment variables with working defaults for local development.
