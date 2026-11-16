@@ -36,7 +36,12 @@ export default function FilterBar({
         }}
       >
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Input label="Crop" name="crop" value={values.crop} onChange={(event) => update("crop", event.target.value)} />
+          <Input
+            label="Crop"
+            name="crop"
+            value={values.crop}
+            onChange={(event) => update("crop", event.target.value)}
+          />
           <Input
             label={locationLabel}
             name="location"

@@ -37,7 +37,9 @@ export default function ConversationsPage() {
     {
       key: "crop",
       header: "Crop",
-      render: (conversation) => <span className="font-medium text-gray-900">{conversation.crop}</span>,
+      render: (conversation) => (
+        <span className="font-medium text-gray-900">{conversation.crop}</span>
+      ),
     },
     { key: "counterpart", header: "With", render: (conversation) => conversation.counterpart_name },
     {

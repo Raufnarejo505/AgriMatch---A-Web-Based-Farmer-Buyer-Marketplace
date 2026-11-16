@@ -82,7 +82,9 @@ export default function BuyerRequirementsPage() {
     {
       key: "crop",
       header: "Crop",
-      render: (requirement) => <span className="font-medium text-gray-900">{requirement.crop}</span>,
+      render: (requirement) => (
+        <span className="font-medium text-gray-900">{requirement.crop}</span>
+      ),
     },
     {
       key: "quantity",
@@ -95,7 +97,11 @@ export default function BuyerRequirementsPage() {
       render: (requirement) =>
         `Rs ${requirement.min_price} - ${requirement.max_price} / ${requirement.unit}`,
     },
-    { key: "delivery_area", header: "Delivery area", render: (requirement) => requirement.delivery_area },
+    {
+      key: "delivery_area",
+      header: "Delivery area",
+      render: (requirement) => requirement.delivery_area,
+    },
     {
       key: "status",
       header: "Status",
@@ -108,13 +114,25 @@ export default function BuyerRequirementsPage() {
       header: "Actions",
       render: (requirement) => (
         <div className="flex flex-wrap gap-2">
-          <Button variant="secondary" className="px-2 py-1 text-xs" onClick={() => openEdit(requirement)}>
+          <Button
+            variant="secondary"
+            className="px-2 py-1 text-xs"
+            onClick={() => openEdit(requirement)}
+          >
             Edit
           </Button>
-          <Button variant="ghost" className="px-2 py-1 text-xs" onClick={() => toggleStatus(requirement)}>
+          <Button
+            variant="ghost"
+            className="px-2 py-1 text-xs"
+            onClick={() => toggleStatus(requirement)}
+          >
             {requirement.status === "open" ? "Close" : "Reopen"}
           </Button>
-          <Button variant="danger" className="px-2 py-1 text-xs" onClick={() => remove(requirement)}>
+          <Button
+            variant="danger"
+            className="px-2 py-1 text-xs"
+            onClick={() => remove(requirement)}
+          >
             Delete
           </Button>
         </div>

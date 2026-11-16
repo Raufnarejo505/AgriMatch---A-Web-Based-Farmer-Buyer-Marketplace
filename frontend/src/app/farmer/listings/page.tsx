@@ -108,10 +108,18 @@ export default function FarmerListingsPage() {
       header: "Actions",
       render: (listing) => (
         <div className="flex flex-wrap gap-2">
-          <Button variant="secondary" className="px-2 py-1 text-xs" onClick={() => openEdit(listing)}>
+          <Button
+            variant="secondary"
+            className="px-2 py-1 text-xs"
+            onClick={() => openEdit(listing)}
+          >
             Edit
           </Button>
-          <Button variant="ghost" className="px-2 py-1 text-xs" onClick={() => toggleStatus(listing)}>
+          <Button
+            variant="ghost"
+            className="px-2 py-1 text-xs"
+            onClick={() => toggleStatus(listing)}
+          >
             {listing.status === "open" ? "Close" : "Reopen"}
           </Button>
           <Button variant="danger" className="px-2 py-1 text-xs" onClick={() => remove(listing)}>
@@ -142,7 +150,12 @@ export default function FarmerListingsPage() {
           {loading ? (
             <Loading />
           ) : (
-            <Table columns={columns} rows={listings} rowKey={(listing) => listing.id} empty="No listings yet" />
+            <Table
+              columns={columns}
+              rows={listings}
+              rowKey={(listing) => listing.id}
+              empty="No listings yet"
+            />
           )}
         </Card>
       </div>

@@ -31,7 +31,13 @@ export function ErrorMessage({ message, onRetry }: { message: string; onRetry?: 
   );
 }
 
-export function EmptyState({ title = "Nothing here yet", description }: { title?: string; description?: string }) {
+export function EmptyState({
+  title = "Nothing here yet",
+  description,
+}: {
+  title?: string;
+  description?: string;
+}) {
   return (
     <div className="rounded-md border border-dashed border-gray-200 px-4 py-10 text-center">
       <p className="text-sm font-medium text-gray-600">{title}</p>

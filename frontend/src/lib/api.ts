@@ -18,7 +18,10 @@ type RequestOptions = {
   signal?: AbortSignal;
 };
 
-async function request<T>(path: string, { method = "GET", body, signal }: RequestOptions = {}): Promise<T> {
+async function request<T>(
+  path: string,
+  { method = "GET", body, signal }: RequestOptions = {},
+): Promise<T> {
   const headers: Record<string, string> = {};
   const token = getToken();
   if (token) headers.Authorization = `Bearer ${token}`;
@@ -34,7 +37,10 @@ async function request<T>(path: string, { method = "GET", body, signal }: Reques
 
   if (res.status === 401) {
     clearAuth();
-    if (typeof window !== "undefined" && !["/login", "/register"].includes(window.location.pathname)) {
+    if (
+      typeof window !== "undefined" &&
+      !["/login", "/register"].includes(window.location.pathname)
+    ) {
       window.location.href = "/login";
     }
   }
@@ -63,7 +69,9 @@ export const api = {
   del: <T = void>(path: string) => request<T>(path, { method: "DELETE" }),
 };
 
-export function queryString(params: Record<string, string | number | boolean | undefined | null>): string {
+export function queryString(
+  params: Record<string, string | number | boolean | undefined | null>,
+): string {
   const search = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== "") search.set(key, String(value));

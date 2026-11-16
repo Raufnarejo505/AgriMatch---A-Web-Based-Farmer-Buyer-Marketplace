@@ -7,7 +7,10 @@ export default function BuyerDashboardPage() {
     <DashboardShell role="buyer" title="Buyer dashboard">
       <div className="grid gap-4 md:grid-cols-3">
         <Card title="My requirements">
-          <EmptyState title="No requirements yet" description="Post a requirement to find matching crops." />
+          <EmptyState
+            title="No requirements yet"
+            description="Post a requirement to find matching crops."
+          />
         </Card>
         <Card title="Browse listings">
           <EmptyState title="No listings yet" description="Search crops listed by farmers." />

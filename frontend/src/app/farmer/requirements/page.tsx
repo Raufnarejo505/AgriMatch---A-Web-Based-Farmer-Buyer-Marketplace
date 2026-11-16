@@ -128,7 +128,10 @@ export default function BrowseRequirementsPage() {
             <Pagination page={page} size={PAGE_SIZE} total={data.total} onPage={setPage} />
           </>
         ) : (
-          <EmptyState title="No requirements found" description="Try adjusting or resetting your filters." />
+          <EmptyState
+            title="No requirements found"
+            description="Try adjusting or resetting your filters."
+          />
         )}
       </div>
     </DashboardShell>

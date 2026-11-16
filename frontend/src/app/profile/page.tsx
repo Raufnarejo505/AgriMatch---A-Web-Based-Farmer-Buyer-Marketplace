@@ -106,7 +106,11 @@ export default function ProfilePage() {
             </dl>
           </Card>
           <Card title="Edit profile" className="md:col-span-2">
-            {error && <div className="mb-4"><ErrorMessage message={error} onRetry={() => setReloadKey((key) => key + 1)} /></div>}
+            {error && (
+              <div className="mb-4">
+                <ErrorMessage message={error} onRetry={() => setReloadKey((key) => key + 1)} />
+              </div>
+            )}
             {notice && (
               <p className="mb-4 rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
                 {notice}
@@ -114,9 +118,26 @@ export default function ProfilePage() {
             )}
             <form onSubmit={save} className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
-                <Input label="Full name" name="name" required minLength={2} value={name} onChange={(e) => setName(e.target.value)} />
-                <Input label="Phone" name="phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
-                <Input label="Location" name="location" value={location} onChange={(e) => setLocation(e.target.value)} />
+                <Input
+                  label="Full name"
+                  name="name"
+                  required
+                  minLength={2}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+                <Input
+                  label="Phone"
+                  name="phone"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
+                <Input
+                  label="Location"
+                  name="location"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                />
                 <Input
                   label="New password (optional)"
                   name="password"
