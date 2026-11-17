@@ -55,7 +55,14 @@ export default function RequirementForm({ initial, onSaved, onCancel }: Props) {
     <form onSubmit={submit} className="space-y-4">
       {error && <ErrorMessage message={error} />}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <Input label="Crop" name="crop" required minLength={2} value={crop} onChange={(e) => setCrop(e.target.value)} />
+        <Input
+          label="Crop"
+          name="crop"
+          required
+          minLength={2}
+          value={crop}
+          onChange={(e) => setCrop(e.target.value)}
+        />
         <Input
           label="Quantity"
           name="quantity"
@@ -66,7 +73,13 @@ export default function RequirementForm({ initial, onSaved, onCancel }: Props) {
           value={quantity}
           onChange={(e) => setQuantity(e.target.value)}
         />
-        <Input label="Unit" name="unit" required value={unit} onChange={(e) => setUnit(e.target.value)} />
+        <Input
+          label="Unit"
+          name="unit"
+          required
+          value={unit}
+          onChange={(e) => setUnit(e.target.value)}
+        />
         <Input
           label="Min price"
           name="min_price"

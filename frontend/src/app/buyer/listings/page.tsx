@@ -61,7 +61,9 @@ export default function BrowseListingsPage() {
   async function contact(listing: Listing) {
     setError("");
     try {
-      const conversation = await api.post<Conversation>("/api/conversations", { listing_id: listing.id });
+      const conversation = await api.post<Conversation>("/api/conversations", {
+        listing_id: listing.id,
+      });
       router.push(`/conversations/${conversation.id}`);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Unable to start conversation");
@@ -115,7 +117,11 @@ export default function BrowseListingsPage() {
                     <p className="text-xs text-gray-400">
                       Listed {new Date(listing.created_at).toLocaleDateString()}
                     </p>
-                    <Button variant="secondary" className="px-2 py-1 text-xs" onClick={() => contact(listing)}>
+                    <Button
+                      variant="secondary"
+                      className="px-2 py-1 text-xs"
+                      onClick={() => contact(listing)}
+                    >
                       Message farmer
                     </Button>
                   </div>
@@ -125,7 +131,10 @@ export default function BrowseListingsPage() {
             <Pagination page={page} size={PAGE_SIZE} total={data.total} onPage={setPage} />
           </>
         ) : (
-          <EmptyState title="No listings found" description="Try adjusting or resetting your filters." />
+          <EmptyState
+            title="No listings found"
+            description="Try adjusting or resetting your filters."
+          />
         )}
       </div>
     </DashboardShell>

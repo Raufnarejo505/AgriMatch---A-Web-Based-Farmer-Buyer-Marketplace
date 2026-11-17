@@ -112,7 +112,9 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
                       disabled={updating}
                       onClick={() => update(next)}
                     >
-                      {next === "cancelled" ? "Cancel order" : `Mark ${ORDER_LABELS[next].toLowerCase()}`}
+                      {next === "cancelled"
+                        ? "Cancel order"
+                        : `Mark ${ORDER_LABELS[next].toLowerCase()}`}
                     </Button>
                   ))}
                 <Link href="/orders" className="text-sm font-medium text-green-700 hover:underline">
@@ -126,7 +128,9 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
                   <li key={entry.id} className="flex gap-3">
                     <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-green-600" />
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{ORDER_LABELS[entry.status]}</p>
+                      <p className="text-sm font-medium text-gray-900">
+                        {ORDER_LABELS[entry.status]}
+                      </p>
                       <p className="text-xs text-gray-500">
                         {new Date(entry.changed_at).toLocaleString()}
                       </p>

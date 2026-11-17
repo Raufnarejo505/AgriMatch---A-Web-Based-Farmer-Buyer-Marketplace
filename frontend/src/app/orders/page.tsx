@@ -95,7 +95,12 @@ export default function OrdersPage() {
           {loading ? (
             <Loading />
           ) : (
-            <Table columns={columns} rows={orders} rowKey={(order) => order.id} empty="No orders yet" />
+            <Table
+              columns={columns}
+              rows={orders}
+              rowKey={(order) => order.id}
+              empty="No orders yet"
+            />
           )}
         </Card>
       </div>

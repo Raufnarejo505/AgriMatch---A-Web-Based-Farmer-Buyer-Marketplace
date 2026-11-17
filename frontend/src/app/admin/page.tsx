@@ -120,7 +120,11 @@ export default function AdminDashboardPage() {
         </div>
       ),
     },
-    { key: "role", header: "Role", render: (user) => <span className="capitalize">{user.role}</span> },
+    {
+      key: "role",
+      header: "Role",
+      render: (user) => <span className="capitalize">{user.role}</span>,
+    },
     {
       key: "status",
       header: "Status",
@@ -138,7 +142,11 @@ export default function AdminDashboardPage() {
       header: "Actions",
       render: (user) => (
         <div className="flex flex-wrap gap-2">
-          <Button variant="secondary" className="px-2 py-1 text-xs" onClick={() => toggleUser(user)}>
+          <Button
+            variant="secondary"
+            className="px-2 py-1 text-xs"
+            onClick={() => toggleUser(user)}
+          >
             {user.status === "active" ? "Suspend" : "Activate"}
           </Button>
           <Button variant="danger" className="px-2 py-1 text-xs" onClick={() => deleteUser(user)}>
@@ -178,7 +186,11 @@ export default function AdminDashboardPage() {
       key: "actions",
       header: "",
       render: (listing) => (
-        <Button variant="danger" className="px-2 py-1 text-xs" onClick={() => deleteListing(listing)}>
+        <Button
+          variant="danger"
+          className="px-2 py-1 text-xs"
+          onClick={() => deleteListing(listing)}
+        >
           Delete
         </Button>
       ),
@@ -189,7 +201,9 @@ export default function AdminDashboardPage() {
     {
       key: "crop",
       header: "Crop",
-      render: (requirement) => <span className="font-medium text-gray-900">{requirement.crop}</span>,
+      render: (requirement) => (
+        <span className="font-medium text-gray-900">{requirement.crop}</span>
+      ),
     },
     { key: "buyer", header: "Buyer", render: (requirement) => `#${requirement.buyer_id}` },
     {
@@ -203,7 +217,11 @@ export default function AdminDashboardPage() {
       render: (requirement) =>
         `Rs ${requirement.min_price} - ${requirement.max_price} / ${requirement.unit}`,
     },
-    { key: "delivery_area", header: "Delivery area", render: (requirement) => requirement.delivery_area },
+    {
+      key: "delivery_area",
+      header: "Delivery area",
+      render: (requirement) => requirement.delivery_area,
+    },
     {
       key: "status",
       header: "Status",
@@ -290,7 +308,12 @@ export default function AdminDashboardPage() {
             </div>
             {tab === "users" && (
               <Card title="Users">
-                <Table columns={userColumns} rows={users} rowKey={(user) => user.id} empty="No users yet" />
+                <Table
+                  columns={userColumns}
+                  rows={users}
+                  rowKey={(user) => user.id}
+                  empty="No users yet"
+                />
               </Card>
             )}
             {tab === "listings" && (

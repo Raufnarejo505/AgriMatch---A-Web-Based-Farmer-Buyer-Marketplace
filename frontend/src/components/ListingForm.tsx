@@ -54,7 +54,14 @@ export default function ListingForm({ initial, onSaved, onCancel }: Props) {
     <form onSubmit={submit} className="space-y-4">
       {error && <ErrorMessage message={error} />}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <Input label="Crop" name="crop" required minLength={2} value={crop} onChange={(e) => setCrop(e.target.value)} />
+        <Input
+          label="Crop"
+          name="crop"
+          required
+          minLength={2}
+          value={crop}
+          onChange={(e) => setCrop(e.target.value)}
+        />
         <Input
           label="Quantity"
           name="quantity"
@@ -65,8 +72,19 @@ export default function ListingForm({ initial, onSaved, onCancel }: Props) {
           value={quantity}
           onChange={(e) => setQuantity(e.target.value)}
         />
-        <Input label="Unit" name="unit" required value={unit} onChange={(e) => setUnit(e.target.value)} />
-        <Select label="Quality" name="quality" value={quality} onChange={(e) => setQuality(e.target.value as Quality)}>
+        <Input
+          label="Unit"
+          name="unit"
+          required
+          value={unit}
+          onChange={(e) => setUnit(e.target.value)}
+        />
+        <Select
+          label="Quality"
+          name="quality"
+          value={quality}
+          onChange={(e) => setQuality(e.target.value as Quality)}
+        >
           <option value="A">Grade A</option>
           <option value="B">Grade B</option>
           <option value="C">Grade C</option>

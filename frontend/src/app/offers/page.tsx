@@ -92,7 +92,12 @@ export default function OffersPage() {
           {loading ? (
             <Loading />
           ) : (
-            <Table columns={columns} rows={offers} rowKey={(offer) => offer.id} empty="No offers yet" />
+            <Table
+              columns={columns}
+              rows={offers}
+              rowKey={(offer) => offer.id}
+              empty="No offers yet"
+            />
           )}
         </Card>
       </div>

@@ -4,9 +4,7 @@ import { getToken } from "./auth";
 
 export const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:8000";
 
-export type ConversationEvent =
-  | { type: "message"; data: Message }
-  | { type: "offer"; data: Offer };
+export type ConversationEvent = { type: "message"; data: Message } | { type: "offer"; data: Offer };
 
 export function connectConversation(
   conversationId: number,

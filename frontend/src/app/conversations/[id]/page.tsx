@@ -77,7 +77,9 @@ export default function ChatPage({ params }: { params: { id: string } }) {
     const socket = connectConversation(conversationId, (event) => {
       if (event.type === "message") {
         setMessages((previous) =>
-          previous.some((message) => message.id === event.data.id) ? previous : [...previous, event.data],
+          previous.some((message) => message.id === event.data.id)
+            ? previous
+            : [...previous, event.data],
         );
       } else {
         void loadOffers().catch(() => setError("Failed to refresh offers"));
@@ -192,19 +194,26 @@ export default function ChatPage({ params }: { params: { id: string } }) {
               >
                 <div className="max-h-[420px] space-y-3 overflow-y-auto pr-1">
                   {messages.length === 0 ? (
-                    <p className="py-6 text-center text-sm text-gray-500">No messages yet. Say hello.</p>
+                    <p className="py-6 text-center text-sm text-gray-500">
+                      No messages yet. Say hello.
+                    </p>
                   ) : (
                     messages.map((message) => {
                       const mine = message.sender_id === me?.id;
                       return (
-                        <div key={message.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+                        <div
+                          key={message.id}
+                          className={`flex ${mine ? "justify-end" : "justify-start"}`}
+                        >
                           <div
                             className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
                               mine ? "bg-green-600 text-white" : "bg-gray-100 text-gray-900"
                             }`}
                           >
                             {!mine && (
-                              <p className="mb-1 text-xs font-medium text-gray-500">{message.sender_name}</p>
+                              <p className="mb-1 text-xs font-medium text-gray-500">
+                                {message.sender_name}
+                              </p>
                             )}
                             <p className="whitespace-pre-wrap break-words">{message.body}</p>
                             <p
