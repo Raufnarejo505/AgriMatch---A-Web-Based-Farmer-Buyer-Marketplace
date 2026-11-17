@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from ..database import get_db
@@ -17,7 +17,7 @@ def _issue_token(user: User) -> Token:
 
 @router.post("/register", response_model=Token, status_code=status.HTTP_201_CREATED)
 def register(payload: UserCreate, db: Session = Depends(get_db)) -> Token:
-    email = payload.email.lower()
+    email = payload.email.strip().casefold()
     if db.scalar(select(User).where(User.email == email)) is not None:
         raise HTTPException(status.HTTP_409_CONFLICT, "Email already registered")
 
@@ -38,7 +38,8 @@ def register(payload: UserCreate, db: Session = Depends(get_db)) -> Token:
 
 @router.post("/login", response_model=Token)
 def login(payload: UserLogin, db: Session = Depends(get_db)) -> Token:
-    user = db.scalar(select(User).where(User.email == payload.email.lower()))
+    email = payload.email.strip().casefold()
+    user = db.scalar(select(User).where(func.lower(func.trim(User.email)) == email))
     if user is None or not verify_password(payload.password, user.password_hash):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid email or password")
     if user.status != "active":
