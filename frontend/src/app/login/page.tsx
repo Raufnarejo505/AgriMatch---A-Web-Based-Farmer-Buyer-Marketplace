@@ -24,11 +24,11 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
     try {
-      const data = await api.post<AuthResponse>("/api/auth/login", { email, password });
+      const data = await api.post<AuthResponse>("/api/auth/login", { email: email.trim(), password });
       setAuth(data.access_token, data.user);
       router.replace(roleHome[data.user.role]);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Unable to sign in");
+      setError(err instanceof ApiError && err.status === 401 ? "Invalid email or password. Use the same email and password you entered when registering. Passwords are case-sensitive." : err instanceof ApiError ? err.message : "Unable to sign in");
     } finally {
       setLoading(false);
     }
@@ -49,6 +49,7 @@ export default function LoginPage() {
               name="email"
               type="email"
               autoComplete="email"
+              autoCapitalize="none"
               required
               value={email}
               onChange={(event) => setEmail(event.target.value)}
