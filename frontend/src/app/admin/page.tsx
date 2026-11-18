@@ -116,7 +116,8 @@ export default function AdminDashboardPage() {
       render: (user) => (
         <div>
           <p className="font-medium text-gray-900">{user.name}</p>
-          <p className="text-xs text-gray-500">{user.email}</p>
+          <p className="text-xs text-gray-500">CNIC ••••{user.cnic_last4 ?? "—"}</p>
+          {user.email && <p className="text-xs text-gray-500">{user.email}</p>}
         </div>
       ),
     },
