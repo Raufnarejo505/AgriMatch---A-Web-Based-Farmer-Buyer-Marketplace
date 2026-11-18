@@ -72,3 +72,69 @@ input, textarea, select { font-size: 16px; }
     padding: .35rem .7rem;
   }
 }
+
+
+/* AgriMatch public homepage — premium, responsive farm editorial */
+html { scroll-behavior: smooth; }
+.am-landing {
+  overflow: clip;
+  isolation: isolate;
+  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+}
+html[lang="ur"] .am-landing {
+  font-family: "Noto Nastaliq Urdu", "Noto Naskh Arabic", "Urdu Typesetting", Tahoma, sans-serif;
+}
+.am-landing .am-kicker {
+  color: #588567;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .20em;
+  text-transform: uppercase;
+}
+.am-landing .am-heading {
+  max-width: 850px;
+  color: #173d2c;
+  font-size: clamp(2.25rem, 4.1vw, 3.65rem);
+  font-weight: 650;
+  line-height: 1.16;
+  letter-spacing: -.045em;
+}
+html[lang="ur"] .am-landing .am-heading {
+  letter-spacing: normal;
+  line-height: 1.65;
+}
+html[lang="ur"] .am-landing h1,
+html[lang="ur"] .am-landing h2,
+html[lang="ur"] .am-landing h3 {
+  line-height: 1.65;
+}
+html[lang="ur"] .am-landing .am-kicker,
+html[lang="ur"] .am-landing [class*="tracking-"] {
+  letter-spacing: normal;
+}
+html[dir="rtl"] .am-hero .am-hero-photo {
+  transform: scaleX(-1);
+}
+@keyframes am-fade-up {
+  from { opacity: 0; transform: translateY(22px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.am-enter { animation: am-fade-up .7s both; }
+.am-enter-delay { animation-delay: .13s; }
+.am-enter-delay2 { animation-delay: .26s; }
+.am-landing a:focus-visible,
+.am-landing button:focus-visible,
+.am-landing summary:focus-visible {
+  outline: 3px solid #d7b774;
+  outline-offset: 3px;
+}
+@media (max-width: 640px) {
+  .am-landing .am-heading { font-size: clamp(2.05rem, 9vw, 2.65rem); }
+  .am-hero { min-height: 640px; }
+  .am-hero-photo { background-position: 57% center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .am-enter { animation: none !important; }
+  .am-landing .group, .am-landing .group * { transition: none !important; }
+}
