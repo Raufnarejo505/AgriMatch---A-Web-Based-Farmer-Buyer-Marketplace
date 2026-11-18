@@ -10,11 +10,11 @@ type Props = {
 
 export default function Card({ title, description, actions, children, className = "" }: Props) {
   return (
-    <section className={`rounded-lg border border-green-100 bg-white p-5 shadow-sm ${className}`}>
+    <section className={`rounded-lg border border-green-100 bg-white p-3 shadow-sm sm:p-5 ${className}`}>
       {(title || actions) && (
-        <header className="mb-4 flex items-start justify-between gap-3">
-          <div>
-            {title && <h2 className="text-base font-semibold text-gray-900">{title}</h2>}
+        <header className="mb-4 flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            {title && <h2 className="break-words text-base font-semibold text-gray-900">{title}</h2>}
             {description && <p className="mt-1 text-sm text-gray-500">{description}</p>}
           </div>
           {actions}
