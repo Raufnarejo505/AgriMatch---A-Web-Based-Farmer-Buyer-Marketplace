@@ -11,6 +11,8 @@ export const roleHome: Record<Role, string> = {
 
 export function getToken(): string | null {
   if (typeof window === "undefined") return null;
+  // A legacy email-only account no longer exists after the CNIC account reset.
+  if (!getUser()) return null;
   return window.localStorage.getItem(TOKEN_KEY);
 }
 
@@ -19,7 +21,13 @@ export function getUser(): User | null {
   const raw = window.localStorage.getItem(USER_KEY);
   if (!raw) return null;
   try {
-    return JSON.parse(raw) as User;
+    const user = JSON.parse(raw) as User;
+    // Only new CNIC-linked user records are valid after the account reset.
+    if (typeof user.cnic_last4 !== "string" || !/^[0-9]{4}$/.test(user.cnic_last4)) {
+      clearAuth();
+      return null;
+    }
+    return user;
   } catch {
     return null;
   }
