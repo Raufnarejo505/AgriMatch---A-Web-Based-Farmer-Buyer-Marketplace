@@ -14,7 +14,9 @@ const words = {
   en: {
     title: "Welcome back",
     subtitle: "Sign in to your AgriMatch account to continue where you left off.",
-    email: "Email address",
+    cnic: "CNIC number",
+    cnicPlaceholder: "12345-1234567-1",
+    cnicHint: "Use the 13 digits on your Pakistani identity card.",
     emailPlaceholder: "you@example.com",
     password: "Password",
     passwordPlaceholder: "Enter your password",
@@ -25,13 +27,15 @@ const words = {
     noAccount: "New to AgriMatch?",
     register: "Create an account",
     note: "One place for your crop listings, conversations, and orders.",
-    invalid: "Invalid email or password. Please use the details you registered with. Passwords are case-sensitive.",
+    invalid: "Invalid CNIC or password. Please use your registered CNIC and password.",
     generic: "Unable to sign in. Please try again.",
   },
   ur: {
     title: "دوبارہ خوش آمدید",
     subtitle: "جہاں سے آپ نے چھوڑا تھا، وہیں سے جاری رکھنے کے لیے اپنے ایگری میچ اکاؤنٹ میں لاگ اِن کریں۔",
-    email: "ای میل ایڈریس",
+    cnic: "شناختی کارڈ نمبر (CNIC)",
+    cnicPlaceholder: "12345-1234567-1",
+    cnicHint: "اپنے پاکستانی شناختی کارڈ کے ۱۳ ہندسے درج کریں۔",
     emailPlaceholder: "you@example.com",
     password: "پاس ورڈ",
     passwordPlaceholder: "اپنا پاس ورڈ درج کریں",
@@ -42,7 +46,7 @@ const words = {
     noAccount: "ایگری میچ پر نئے ہیں؟",
     register: "اکاؤنٹ بنائیں",
     note: "فصلوں کی فہرستیں، گفتگو اور آرڈرز ایک ہی جگہ سنبھالیں۔",
-    invalid: "ای میل یا پاس ورڈ درست نہیں۔ رجسٹریشن والی تفصیلات استعمال کریں۔ پاس ورڈ میں بڑے اور چھوٹے حروف مختلف ہوتے ہیں۔",
+    invalid: "شناختی کارڈ نمبر یا پاس ورڈ درست نہیں۔ وہی تفصیلات استعمال کریں جو رجسٹریشن میں دی تھیں۔",
     generic: "لاگ اِن نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
   },
 } as const;
@@ -54,7 +58,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { language } = useLanguage();
   const c = words[language];
-  const [email, setEmail] = useState("");
+  const [cnic, setCnic] = useState("");
   const [password, setPassword] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [error, setError] = useState("");
@@ -67,7 +71,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const data = await api.post<AuthResponse>("/api/auth/login", {
-        email: email.trim(),
+        cnic: cnic.replace(/\D/g, ""),
         password,
       });
       setAuth(data.access_token, data.user);
@@ -95,22 +99,26 @@ export default function LoginPage() {
         )}
 
         <div>
-          <label htmlFor="login-email" className={labelClass}>{c.email}</label>
+          <label htmlFor="login-cnic" className={labelClass}>{c.cnic}</label>
           <input
-            id="login-email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            autoCapitalize="none"
-            inputMode="email"
+            id="login-cnic"
+            name="cnic"
+            type="text"
+            inputMode="numeric"
+            autoComplete="off"
             dir="ltr"
-            spellCheck={false}
+            pattern="[0-9]{5}-?[0-9]{7}-?[0-9]"
+            maxLength={15}
             required
-            placeholder={c.emailPlaceholder}
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            placeholder={c.cnicPlaceholder}
+            value={cnic}
+            onChange={(event) => {
+              const digits = event.target.value.replace(/\D/g, "").slice(0, 13);
+              setCnic(digits.length > 12 ? digits.slice(0,5) + "-" + digits.slice(5,12) + "-" + digits.slice(12) : digits.length > 5 ? digits.slice(0,5) + "-" + digits.slice(5) : digits);
+            }}
             className={fieldClass}
           />
+          <p className="mt-1 text-[11px] text-[#6d826f]">{c.cnicHint}</p>
         </div>
 
         <div>
