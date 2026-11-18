@@ -39,7 +39,7 @@ async function request<T>(
     clearAuth();
     if (
       typeof window !== "undefined" &&
-      !["/login", "/register"].includes(window.location.pathname)
+      !["/login", "/register", "/admin/setup"].includes(window.location.pathname)
     ) {
       window.location.href = "/login";
     }
