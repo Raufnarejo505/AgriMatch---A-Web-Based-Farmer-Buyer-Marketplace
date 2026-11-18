@@ -2,37 +2,32 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import select
+from sqlalchemy import text
 
 from .config import settings
-from .database import Base, SessionLocal, engine
-from .models import User
+from .database import Base, engine
 from . import ws
 from .routers import admin, auth, conversations, listings, offers, orders, requirements, users
-from .security import hash_password
 
 
-def seed_admin() -> None:
-    with SessionLocal() as db:
-        email = settings.admin_email.lower()
-        if db.scalar(select(User).where(User.email == email)) is not None:
-            return
-        db.add(
-            User(
-                name=settings.admin_name,
-                email=email,
-                password_hash=hash_password(settings.admin_password),
-                role="admin",
-                status="active",
-            )
-        )
-        db.commit()
+def migrate_user_identity() -> None:
+    # Additive migration for databases created before CNIC-based authentication.
+    # Never clear users on service startup or during an ordinary redeployment.
+    with engine.begin() as connection:
+        connection.execute(text("ALTER TABLE IF EXISTS users ADD COLUMN IF NOT EXISTS cnic_hash VARCHAR(64)"))
+        connection.execute(text("ALTER TABLE IF EXISTS users ADD COLUMN IF NOT EXISTS cnic_last4 VARCHAR(4)"))
+        connection.execute(text("ALTER TABLE IF EXISTS users ALTER COLUMN email DROP NOT NULL"))
+        connection.execute(text(
+            "CREATE UNIQUE INDEX IF NOT EXISTS ix_users_cnic_hash ON users (cnic_hash)"
+        ))
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    # For existing databases the new columns need adding before ORM queries use them.
+    migrate_user_identity()
     Base.metadata.create_all(bind=engine)
-    seed_admin()
+    # Remove legacy default admin seeding. Accounts must be registered with CNIC.
     yield
 
 
