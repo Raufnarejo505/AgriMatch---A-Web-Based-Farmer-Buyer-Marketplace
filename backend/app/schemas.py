@@ -39,6 +39,12 @@ class UserLogin(CnicModel):
     password: str = Field(min_length=1, max_length=72)
 
 
+class AdminSetup(CnicModel):
+    name: str = Field(min_length=2, max_length=120)
+    password: str = Field(min_length=8, max_length=72)
+    setup_key: str = Field(min_length=32, max_length=128)
+
+
 class UserOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
