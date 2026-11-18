@@ -122,11 +122,11 @@ export default function ListingForm({ initial, onSaved, onCancel }: Props) {
           className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600"
         />
       </div>
-      <div className="flex gap-2">
-        <Button type="submit" disabled={saving}>
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <Button type="submit" className="w-full sm:w-auto" disabled={saving}>
           {saving ? "Saving..." : initial ? "Save changes" : "Create listing"}
         </Button>
-        <Button type="button" variant="secondary" onClick={onCancel}>
+        <Button type="button" variant="secondary" className="w-full sm:w-auto" onClick={onCancel}>
           Cancel
         </Button>
       </div>
