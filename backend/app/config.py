@@ -6,6 +6,7 @@ class Settings(BaseSettings):
 
     database_url: str = "postgresql+psycopg2://agrimatch:agrimatch@db:5432/agrimatch"
     jwt_secret: str = "dev-secret-change-me"
+    cnic_hash_key: str = "dev-cnic-hmac-key-change-me"
     jwt_algorithm: str = "HS256"
     jwt_expire_hours: int = 24
     cors_origins: str = "http://localhost:3000"
