@@ -25,8 +25,8 @@ def migrate_user_identity() -> None:
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     # For existing databases the new columns need adding before ORM queries use them.
-    migrate_user_identity()
     Base.metadata.create_all(bind=engine)
+    migrate_user_identity()
     # Remove legacy default admin seeding. Accounts must be registered with CNIC.
     yield
 
