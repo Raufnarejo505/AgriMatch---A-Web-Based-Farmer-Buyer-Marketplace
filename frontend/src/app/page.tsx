@@ -290,7 +290,7 @@ export default function HomePage() {
         <section className="relative mx-auto max-w-[1360px] px-3 sm:px-5 lg:px-7">
           <div className="am-hero relative isolate flex min-h-[660px] overflow-hidden rounded-[23px] bg-[#143929] sm:min-h-[670px] sm:rounded-[28px] lg:min-h-[676px] lg:rounded-[35px]">
             <div className="am-hero-photo absolute inset-0 -z-20 bg-cover bg-center" style={{backgroundImage: "url('" + photos.hero + "')"}} aria-hidden="true"/>
-            <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(12,42,31,.96)_0%,rgba(13,47,34,.89)_37%,rgba(13,47,34,.42)_72%,rgba(13,47,34,.18)_100%)]" aria-hidden="true"/>
+            <div className="am-hero-shade absolute inset-0 -z-10" aria-hidden="true"/>
             <div className="absolute inset-x-0 bottom-0 h-52 bg-gradient-to-t from-[#102F25]/70 to-transparent" aria-hidden="true"/>
             <div className="relative z-10 flex w-full flex-col justify-between gap-8 px-6 pb-8 pt-16 sm:px-10 sm:pb-10 lg:flex-row lg:items-end lg:px-[74px] lg:pb-[68px] lg:pt-[100px]">
               <div className="max-w-[780px] self-start lg:self-auto">
