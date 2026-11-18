@@ -20,14 +20,28 @@ export default function Table<T>({ columns, rows, rowKey, empty = "No records fo
   if (rows.length === 0) return <EmptyState title={empty} />;
 
   return (
-    <div className="overflow-x-auto">
+    <>
+      <div className="space-y-3 md:hidden">
+        {rows.map((row) => (
+          <dl key={rowKey(row)} className="min-w-0 rounded-lg border border-green-100 bg-white p-3 shadow-sm">
+            {columns.map((column) => (
+              <div key={column.key} className="min-w-0 py-2 first:pt-0 last:pb-0">
+                {column.header && <dt className="mb-1 text-xs font-semibold text-green-800">{column.header}</dt>}
+                <dd className="min-w-0 break-words text-sm text-gray-800">{column.render(row)}</dd>
+              </div>
+            ))}
+          </dl>
+        ))}
+      </div>
+      <div className="hidden min-w-0 max-w-full overflow-x-auto md:block" tabIndex={0} role="region" aria-label="Data table">
       <table className="min-w-full divide-y divide-gray-200 text-sm">
         <thead className="bg-green-50">
           <tr>
             {columns.map((column) => (
               <th
                 key={column.key}
-                className={`px-3 py-2 text-left font-semibold text-green-800 ${column.className ?? ""}`}
+                scope="col"
+                className={`px-3 py-2 text-start font-semibold text-green-800 ${column.className ?? ""}`}
               >
                 {column.header}
               </th>
@@ -46,6 +60,7 @@ export default function Table<T>({ columns, rows, rowKey, empty = "No records fo
           ))}
         </tbody>
       </table>
-    </div>
+      </div>
+    </>
   );
 }
