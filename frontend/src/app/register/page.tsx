@@ -21,7 +21,9 @@ const words = {
     buyerHint: "Find and purchase crops",
     fullName: "Full name",
     namePlaceholder: "Enter your full name",
-    email: "Email address",
+    cnic: "CNIC number (required)",
+    cnicHint: "Enter your 13-digit Pakistani national identity card number.",
+    email: "Email address (optional)",
     emailPlaceholder: "you@example.com",
     password: "Create a password",
     passwordPlaceholder: "At least 8 characters",
@@ -37,6 +39,7 @@ const words = {
     submitting: "Creating your account...",
     already: "Already have an account?",
     login: "Sign in",
+    invalidCnic: "Please enter a valid 13-digit CNIC number.",
     invalidPassword: "Your password must be at least 8 characters.",
     invalidConsent: "Please confirm you agree to create an account.",
     generic: "Unable to create your account. Please try again.",
@@ -52,7 +55,9 @@ const words = {
     buyerHint: "فصلیں تلاش اور خریدیں",
     fullName: "پورا نام",
     namePlaceholder: "اپنا پورا نام درج کریں",
-    email: "ای میل ایڈریس",
+    cnic: "شناختی کارڈ نمبر (لازمی)",
+    cnicHint: "اپنے پاکستانی شناختی کارڈ کے ۱۳ ہندسے درج کریں۔",
+    email: "ای میل ایڈریس (اختیاری)",
     emailPlaceholder: "you@example.com",
     password: "پاس ورڈ بنائیں",
     passwordPlaceholder: "کم از کم ۸ حروف",
@@ -68,6 +73,7 @@ const words = {
     submitting: "اکاؤنٹ بن رہا ہے...",
     already: "پہلے سے اکاؤنٹ موجود ہے؟",
     login: "لاگ اِن کریں",
+    invalidCnic: "براہِ کرم شناختی کارڈ کے درست ۱۳ ہندسے درج کریں۔",
     invalidPassword: "پاس ورڈ کم از کم ۸ حروف پر مشتمل ہونا چاہیے۔",
     invalidConsent: "براہِ کرم اکاؤنٹ بنانے کی رضامندی دیں۔",
     generic: "اکاؤنٹ نہیں بن سکا۔ دوبارہ کوشش کریں۔",
@@ -84,6 +90,7 @@ export default function RegisterPage() {
   const c = words[language];
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [cnic, setCnic] = useState("");
   const [password, setPassword] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [role, setRole] = useState<SignupRole>("farmer");
@@ -102,6 +109,10 @@ export default function RegisterPage() {
     event.preventDefault();
     if (loading) return;
     setError("");
+    if (!/^[0-9]{13}$/.test(cnic.replace(/\D/g, ""))) {
+      setError(c.invalidCnic);
+      return;
+    }
     if (password.length < 8) {
       setError(c.invalidPassword);
       return;
@@ -114,7 +125,8 @@ export default function RegisterPage() {
     try {
       const data = await api.post<AuthResponse>("/api/auth/register", {
         name: name.trim(),
-        email: email.trim(),
+        cnic: cnic.replace(/\D/g, ""),
+        email: email.trim() || null,
         password,
         role,
         phone: phone.trim() || null,
@@ -167,9 +179,32 @@ export default function RegisterPage() {
           </div>
           <div>
             <label htmlFor="register-email" className={labelClass}>{c.email}</label>
-            <input id="register-email" name="email" type="email" autoComplete="email" autoCapitalize="none" spellCheck={false} dir="ltr" required placeholder={c.emailPlaceholder} value={email} onChange={(event) => setEmail(event.target.value)} className={fieldClass} />
+            <input id="register-email" name="email" type="email" autoComplete="email" autoCapitalize="none" spellCheck={false} dir="ltr" placeholder={c.emailPlaceholder} value={email} onChange={(event) => setEmail(event.target.value)} className={fieldClass} />
           </div>
         </div>
+
+          <div>
+            <label htmlFor="register-cnic" className={labelClass}>{c.cnic}</label>
+            <input
+              id="register-cnic"
+              name="cnic"
+              type="text"
+              inputMode="numeric"
+              autoComplete="off"
+              dir="ltr"
+              pattern="[0-9]{5}-?[0-9]{7}-?[0-9]"
+              maxLength={15}
+              required
+              placeholder="12345-1234567-1"
+              value={cnic}
+              onChange={(event) => {
+                const digits = event.target.value.replace(/\D/g, "").slice(0, 13);
+                setCnic(digits.length > 12 ? digits.slice(0, 5) + "-" + digits.slice(5, 12) + "-" + digits.slice(12) : digits.length > 5 ? digits.slice(0, 5) + "-" + digits.slice(5) : digits);
+              }}
+              className={fieldClass}
+            />
+            <p className="mt-1 text-[11px] text-[#6d826f]">{c.cnicHint}</p>
+          </div>
 
         <div>
           <label htmlFor="register-password" className={labelClass}>{c.password}</label>

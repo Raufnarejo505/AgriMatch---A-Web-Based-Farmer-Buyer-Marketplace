@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta, timezone
+import hashlib
+import hmac
 
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -28,3 +30,12 @@ def decode_token(token: str) -> int | None:
         return int(payload["sub"])
     except (JWTError, KeyError, TypeError, ValueError):
         return None
+
+
+def cnic_fingerprint(cnic: str) -> str:
+    """A secret-keyed lookup index: raw government ID is not stored."""
+    return hmac.new(
+        settings.cnic_hash_key.encode("utf-8"),
+        cnic.encode("ascii"),
+        hashlib.sha256,
+    ).hexdigest()

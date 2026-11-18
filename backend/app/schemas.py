@@ -1,33 +1,50 @@
 from datetime import datetime
+import re
 from typing import Generic, Literal, TypeVar
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator, model_validator
 
 Role = Literal["farmer", "buyer", "admin"]
 SignupRole = Literal["farmer", "buyer"]
 UserStatus = Literal["active", "suspended"]
 
 
-class UserCreate(BaseModel):
+class CnicModel(BaseModel):
+    cnic: str = Field(min_length=13, max_length=15)
+
+    @field_validator("cnic")
+    @classmethod
+    def normalize_cnic(cls, value: str) -> str:
+        digits = value.strip().replace("-", "")
+        if re.fullmatch(r"[0-9]{13}", digits) is None:
+            raise ValueError("CNIC must be exactly 13 digits (e.g. 12345-1234567-1)")
+        return digits
+
+
+class UserCreate(CnicModel):
     name: str = Field(min_length=2, max_length=120)
-    email: EmailStr
+    email: EmailStr | None = None
     password: str = Field(min_length=8, max_length=72)
     role: SignupRole
     phone: str | None = Field(default=None, max_length=30)
     location: str | None = Field(default=None, max_length=120)
 
+    @field_validator("email", mode="before")
+    @classmethod
+    def blank_email_is_none(cls, value):
+        return None if value is None or isinstance(value, str) and not value.strip() else value
 
-class UserLogin(BaseModel):
-    email: EmailStr
+
+class UserLogin(CnicModel):
     password: str = Field(min_length=1, max_length=72)
 
 
 class UserOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-
     id: int
     name: str
-    email: EmailStr
+    email: EmailStr | None = None
+    cnic_last4: str | None = None
     role: Role
     phone: str | None = None
     location: str | None = None

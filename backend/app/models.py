@@ -17,7 +17,10 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(120))
-    email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
+    email: Mapped[str | None] = mapped_column(String(255), nullable=True, unique=True, index=True)
+    # Never persist the full CNIC. HMAC blind index enables account lookup.
+    cnic_hash: Mapped[str | None] = mapped_column(String(64), unique=True, index=True, nullable=True)
+    cnic_last4: Mapped[str | None] = mapped_column(String(4), nullable=True)
     password_hash: Mapped[str] = mapped_column(String(255))
     role: Mapped[str] = mapped_column(String(20), index=True)
     phone: Mapped[str | None] = mapped_column(String(30))

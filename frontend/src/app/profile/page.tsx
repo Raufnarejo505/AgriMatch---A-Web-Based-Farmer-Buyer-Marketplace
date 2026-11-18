@@ -86,8 +86,12 @@ export default function ProfilePage() {
           <Card title="Account">
             <dl className="space-y-2 text-sm">
               <div>
-                <dt className="text-gray-500">Email</dt>
-                <dd className="font-medium text-gray-900">{profile?.email}</dd>
+                <dt className="text-gray-500">CNIC</dt>
+                <dd className="font-medium text-gray-900" dir="ltr">****-*******-{profile?.cnic_last4 ?? "****"}</dd>
+              </div>
+              <div>
+                <dt className="text-gray-500">Email (optional)</dt>
+                <dd className="font-medium text-gray-900">{profile?.email || "Not provided"}</dd>
               </div>
               <div>
                 <dt className="text-gray-500">Role</dt>
