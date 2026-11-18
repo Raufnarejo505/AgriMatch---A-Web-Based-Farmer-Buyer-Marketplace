@@ -138,3 +138,10 @@ html[dir="rtl"] .am-hero .am-hero-photo {
   .am-enter { animation: none !important; }
   .am-landing .group, .am-landing .group * { transition: none !important; }
 }
+
+.am-hero-shade {
+  background: linear-gradient(90deg, rgba(12,42,31,.96) 0%, rgba(13,47,34,.89) 37%, rgba(13,47,34,.42) 72%, rgba(13,47,34,.18) 100%);
+}
+html[dir="rtl"] .am-hero-shade {
+  background: linear-gradient(270deg, rgba(12,42,31,.96) 0%, rgba(13,47,34,.89) 37%, rgba(13,47,34,.42) 72%, rgba(13,47,34,.18) 100%);
+}
