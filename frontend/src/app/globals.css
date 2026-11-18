@@ -145,3 +145,68 @@ html[dir="rtl"] .am-hero .am-hero-photo {
 html[dir="rtl"] .am-hero-shade {
   background: linear-gradient(270deg, rgba(12,42,31,.96) 0%, rgba(13,47,34,.89) 37%, rgba(13,47,34,.42) 72%, rgba(13,47,34,.18) 100%);
 }
+
+
+/* Premium farm photography login and signup pages */
+.am-auth {
+  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+}
+html[lang="ur"] .am-auth {
+  font-family: "Noto Nastaliq Urdu", "Noto Naskh Arabic", "Urdu Typesetting", Tahoma, sans-serif;
+}
+.am-auth-photo {
+  background-position: center 48%;
+  transform: scale(1.01);
+}
+.am-auth-login .am-auth-photo {
+  background-position: center 55%;
+}
+.am-auth-register .am-auth-photo {
+  background-position: center 45%;
+}
+.am-auth-shade {
+  background: linear-gradient(95deg, rgba(11, 44, 27, .91), rgba(12, 45, 28, .68) 46%, rgba(8, 31, 19, .48) 100%);
+}
+html[dir="rtl"] .am-auth-shade {
+  background: linear-gradient(265deg, rgba(11, 44, 27, .91), rgba(12, 45, 28, .68) 46%, rgba(8, 31, 19, .48) 100%);
+}
+.am-auth-story, .am-auth-panel {
+  animation: am-fade-up .65s ease-out both;
+}
+.am-auth-panel { animation-delay: .12s; }
+html[lang="ur"] .am-auth h1,
+html[lang="ur"] .am-auth h2 {
+  line-height: 1.62;
+  letter-spacing: normal;
+}
+html[lang="ur"] .am-auth [class*="tracking-"] {
+  letter-spacing: normal;
+}
+.am-auth input[type="text"], .am-auth input[type="email"],
+.am-auth input[type="password"], .am-auth input[type="tel"] {
+  min-width: 0;
+}
+.am-auth input:focus-visible, .am-auth a:focus-visible,
+.am-auth button:focus-visible {
+  outline-offset: 3px;
+}
+@media (max-width: 1023px) {
+  .am-auth-shade {
+    background: linear-gradient(180deg, rgba(9, 40, 26, .8) 0%, rgba(11, 42, 26, .69) 38%, rgba(11, 33, 20, .5) 100%);
+  }
+  html[dir="rtl"] .am-auth-shade {
+    background: linear-gradient(180deg, rgba(9, 40, 26, .8) 0%, rgba(11, 42, 26, .69) 38%, rgba(11, 33, 20, .5) 100%);
+  }
+  .am-auth-story { max-width: 660px; }
+}
+@media (max-width: 639px) {
+  .am-auth { min-height: 100svh; }
+  .am-auth-story h1 { font-size: clamp(2.1rem, 8.1vw, 3rem); }
+  .am-auth-story p { font-size: 14px; line-height: 1.75; }
+  .am-auth-panel { border-radius: 24px; }
+  .am-auth-photo { background-position: 52% center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .am-auth-story, .am-auth-panel { animation: none; }
+  .am-auth * { scroll-behavior: auto; }
+}
