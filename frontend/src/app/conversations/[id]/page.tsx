@@ -183,7 +183,7 @@ export default function ChatPage({ params }: { params: { id: string } }) {
           <Loading />
         ) : (
           <div className="grid gap-4 lg:grid-cols-3">
-            <div className="lg:col-span-2">
+            <div className="min-w-0 lg:col-span-2">
               <Card
                 title={conversation?.counterpart_name ?? "Conversation"}
                 description={
@@ -192,7 +192,7 @@ export default function ChatPage({ params }: { params: { id: string } }) {
                     : undefined
                 }
               >
-                <div className="max-h-[420px] space-y-3 overflow-y-auto pr-1">
+                <div className="max-h-[48dvh] min-h-32 space-y-3 overflow-y-auto pe-1 sm:max-h-[420px]">
                   {messages.length === 0 ? (
                     <p className="py-6 text-center text-sm text-gray-500">
                       No messages yet. Say hello.
@@ -206,7 +206,7 @@ export default function ChatPage({ params }: { params: { id: string } }) {
                           className={`flex ${mine ? "justify-end" : "justify-start"}`}
                         >
                           <div
-                            className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
+                            className={`max-w-[90%] min-w-0 rounded-lg px-3 py-2 text-sm sm:max-w-[80%] ${
                               mine ? "bg-green-600 text-white" : "bg-gray-100 text-gray-900"
                             }`}
                           >
@@ -230,7 +230,7 @@ export default function ChatPage({ params }: { params: { id: string } }) {
                   )}
                   <div ref={bottomRef} />
                 </div>
-                <form onSubmit={sendMessage} className="mt-4 flex items-start gap-2">
+                <form onSubmit={sendMessage} className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-start">
                   <Input
                     name="message"
                     placeholder="Write a message..."
@@ -243,7 +243,7 @@ export default function ChatPage({ params }: { params: { id: string } }) {
                 </form>
               </Card>
             </div>
-            <div className="space-y-4">
+            <div className="min-w-0 space-y-4">
               <Card title="Offers">
                 {offers.length === 0 ? (
                   <p className="text-sm text-gray-500">No offers yet.</p>
@@ -289,7 +289,7 @@ export default function ChatPage({ params }: { params: { id: string } }) {
                         )}
                         {counterFor?.id === offer.id && (
                           <form onSubmit={submitCounter} className="mt-3 space-y-2">
-                            <div className="grid grid-cols-2 gap-2">
+                            <div className="grid gap-2 sm:grid-cols-2">
                               <Input
                                 label="Price"
                                 name="counter_price"
