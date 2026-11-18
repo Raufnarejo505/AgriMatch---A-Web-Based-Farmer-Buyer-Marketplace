@@ -12,8 +12,8 @@ type AuthShellProps = {
 };
 
 const backgrounds = {
-  login: "https://images.unsplash.com/photo-1706862609885-7771b001daa2?auto=format&fit=crop&w=2200&q=82",
-  register: "https://images.pexels.com/photos/15469881/pexels-photo-15469881.jpeg?auto=compress&cs=tinysrgb&w=2000",
+  login: "https://images.unsplash.com/photo-1789302346125-dee93aa2cbdc?auto=format&fit=crop&w=2400&q=85",
+  register: "https://images.unsplash.com/photo-1779043151820-b57b099dbeea?auto=format&fit=crop&w=2000&q=85",
 };
 
 const hero = {
