@@ -98,9 +98,9 @@ export default function FilterBar({
             onChange={(event) => update("max_price", event.target.value)}
           />
         </div>
-        <div className="mt-4 flex gap-2">
-          <Button type="submit">Apply filters</Button>
-          <Button type="button" variant="secondary" onClick={onReset}>
+        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+          <Button type="submit" className="w-full sm:w-auto">Apply filters</Button>
+          <Button type="button" variant="secondary" className="w-full sm:w-auto" onClick={onReset}>
             Reset
           </Button>
         </div>

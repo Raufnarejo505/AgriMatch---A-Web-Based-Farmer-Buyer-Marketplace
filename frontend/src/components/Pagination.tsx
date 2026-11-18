@@ -12,15 +12,15 @@ export default function Pagination({ page, size, total, onPage }: Props) {
   if (total === 0) return null;
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-gray-600">
+    <div className="flex flex-col items-stretch justify-between gap-3 text-sm text-gray-600 sm:flex-row sm:items-center">
       <span>
         Page {page} of {pages} · {total} result{total === 1 ? "" : "s"}
       </span>
-      <div className="flex gap-2">
+      <div className="flex gap-2 sm:justify-end">
         <Button
           type="button"
           variant="secondary"
-          className="px-3 py-1.5 text-xs"
+          className="w-1/2 px-3 py-1.5 text-xs sm:w-auto"
           disabled={page <= 1}
           onClick={() => onPage(page - 1)}
         >
@@ -29,7 +29,7 @@ export default function Pagination({ page, size, total, onPage }: Props) {
         <Button
           type="button"
           variant="secondary"
-          className="px-3 py-1.5 text-xs"
+          className="w-1/2 px-3 py-1.5 text-xs sm:w-auto"
           disabled={page >= pages}
           onClick={() => onPage(page + 1)}
         >

@@ -109,11 +109,11 @@ export default function RequirementForm({ initial, onSaved, onCancel }: Props) {
           onChange={(e) => setDeliveryArea(e.target.value)}
         />
       </div>
-      <div className="flex gap-2">
-        <Button type="submit" disabled={saving}>
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <Button type="submit" className="w-full sm:w-auto" disabled={saving}>
           {saving ? "Saving..." : initial ? "Save changes" : "Create requirement"}
         </Button>
-        <Button type="button" variant="secondary" onClick={onCancel}>
+        <Button type="button" variant="secondary" className="w-full sm:w-auto" onClick={onCancel}>
           Cancel
         </Button>
       </div>

@@ -284,7 +284,7 @@ export default function AdminDashboardPage() {
           <Loading />
         ) : (
           <>
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-4">
               {statCards.map((card) => (
                 <Card key={card.label}>
                   <p className="text-xs font-medium uppercase tracking-wide text-gray-500">

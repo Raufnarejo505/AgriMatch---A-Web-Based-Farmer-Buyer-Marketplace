@@ -16,7 +16,7 @@ export default function Select({ label, error, id, className = "", children, ...
       )}
       <select
         id={selectId}
-        className={`w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none transition focus:border-green-600 focus:ring-1 focus:ring-green-600 disabled:bg-gray-100 ${
+        className={`min-h-11 w-full min-w-0 rounded-md border border-gray-300 bg-white px-3 py-2 text-base sm:text-sm outline-none transition focus:border-green-600 focus:ring-1 focus:ring-green-600 disabled:bg-gray-100 ${
           error ? "border-red-500" : ""
         } ${className}`}
         {...props}
