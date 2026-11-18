@@ -51,3 +51,24 @@ body { padding-bottom: 4.75rem; }
   outline: 3px solid #14532d;
   outline-offset: 2px;
 }
+
+/* Responsive marketplace forms and data */
+html { -webkit-text-size-adjust: 100%; }
+body { min-width: 0; }
+main, main > *, section { min-width: 0; }
+input, select, textarea, button { max-width: 100%; }
+input, textarea, select { font-size: 16px; }
+@media (min-width: 640px) {
+  input, textarea, select { font-size: 14px; }
+}
+@media (max-width: 639px) {
+  .agrimatch-language-switcher {
+    bottom: max(.75rem, env(safe-area-inset-bottom));
+    left: max(.75rem, env(safe-area-inset-left));
+    box-shadow: 0 3px 12px rgba(22, 101, 52, .12);
+  }
+  .agrimatch-language-switcher button {
+    min-height: 44px;
+    padding: .35rem .7rem;
+  }
+}
